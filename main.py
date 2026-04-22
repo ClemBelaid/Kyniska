@@ -13,3 +13,6 @@ if __name__ == "__main__":
     print(m.ids)
 
     m.save_json("test.json")
+
+    m2 = Mire.load_json("test.json")
+    print(m2.points)
