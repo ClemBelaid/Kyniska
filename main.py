@@ -1,5 +1,5 @@
 from mire import Mire
-
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     pts = [
@@ -31,4 +31,8 @@ if __name__ == "__main__":
 
 
     m2 = Mire.load_json("test.json")
+    print(m2)
     print(m2.points)
+    m2.show()
+    plt.show()
+
