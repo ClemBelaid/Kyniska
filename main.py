@@ -13,7 +13,7 @@ if __name__ == "__main__":
     print(m.ids)
 
     m.save_json("test.json")
-###
+
     mire_cube = Mire.generer_cube(nb_billes=20, largeur=200.0, longueur=200.0, epaisseur=30.0)
 
     print("--- MIRE CUBE ---")
@@ -28,3 +28,7 @@ if __name__ == "__main__":
     print(f"Nombre de billes : {len(mire_cone)}")
 
     mire_cone.save_json("mire_cone.json")
+
+
+    m2 = Mire.load_json("test.json")
+    print(m2.points)
