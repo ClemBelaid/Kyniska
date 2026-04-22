@@ -14,6 +14,23 @@ class Mire:
     def __len__(self):
         return len(self.points)
 
+    def __str__(self):
+        return f"Mire with {len(self.points)} points"
+    
+    def show(self, ax=None):
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection="3d")
+
+        ax.scatter(
+            self.points[:,0],
+            self.points[:,1],
+            self.points[:,2]
+        )
+    
+        return ax
+
+
     def copy(self):
         return Mire(self.points.copy(), self.ids.copy())
 
