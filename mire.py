@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Mire:
     def __init__(self, points, ids=None):
