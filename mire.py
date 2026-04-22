@@ -102,8 +102,6 @@ class Mire:
 
             w = u_proj - o_prime 
             proj_2D.append((np.dot(u1, w), np.dot(u2,w)))
-    
-    def gjkuh(self,)
 
 class Observation:
     def __init__(self, points2d, ids=None):
