@@ -1,6 +1,5 @@
 import json
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Mire:
     def __init__(self, points, ids=None):
@@ -18,6 +17,7 @@ class Mire:
         return f"Mire with {len(self.points)} points"
     
     def show(self, ax=None):
+        import matplotlib.pyplot as plt
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection="3d")
@@ -72,6 +72,32 @@ class Observation:
 
     def __len__(self):
         return len(self.points)
+
+    def __str__(self):
+        return f"Mire with {len(self.points)} points"
+    
+    def show(self, ax=None):
+        import matplotlib.pyplot as plt
+    
+        if ax is None:
+            fig, ax = plt.subplots()
+    
+        ax.scatter(
+            self.points[:,0],
+            self.points[:,1]
+        )
+    
+        ax.set_aspect("equal")
+    
+        return ax
+
+        ax.scatter(
+            self.points[:,0],
+            self.points[:,1],
+            self.points[:,2]
+        )
+    
+        return ax
 
     def copy(self):
         return Observation(
