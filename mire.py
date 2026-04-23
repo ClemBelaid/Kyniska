@@ -88,10 +88,12 @@ class Mire:
         xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
         zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c
 
-        # Calcul de deux vecteurs directeurs (u1, u2) du plan
+        # Calcul de deux vecteurs directeurs (u1, u2) du plan, orthogonaux à v
         u1 = self.perpendicular_vector(v) 
         u2 = np.cross(v, u1)   # u2 est orthogonal à la fois à v et à u1
         
+        observ = []
+
         for pt in self.points:
             # Vecteur u des coordonnées de la bille
             u = (pt["x"], pt["y"], pt["z"])
@@ -100,10 +102,11 @@ class Mire:
             u_prime = np.dot(u,v)/np.dot(v,v)*v
             u_proj = u - u_prime
 
-            w = u_proj - o_prime 
-            proj_2D.append((np.dot(u1, w), np.dot(u2,w)))
+            w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
+            observ.append((np.dot(u1, w), np.dot(u2,w)))
+        
+        return Observation(observ, self.ids)
     
-    def gjkuh(self,)
 
 class Observation:
     def __init__(self, points2d, ids=None):
