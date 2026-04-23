@@ -54,8 +54,6 @@ Introduction rapide au format JSON : https://developer.mozilla.org/fr/docs/Learn
 
 La librairie python : https://docs.python.org/3/library/json.html
 
-La librairie python : https://docs.python.org/3/library/json.html
-
 ---
 
 ## Étapes
