@@ -217,3 +217,14 @@ class Observation:
 
         return cls(points2d=points, ids=ids)
 
+    def ajouterBruit(self, posRatio, negRatio):
+         """
+        Crée une observation 2D bruitée.
+
+        points2d : points (n,2)
+        pos : float (entre 0 et 1) du pourcentage (?) de bruit positif
+            0 = aucun bruit positif, 1 = image entièrement recouverte
+        neg : float (entre 0 et 1) du pourcentage (?) de bruit négatif
+            0 = aucun bruit négatif, 1 = image entièrement vidée
+        ids : optionnel
+        """
