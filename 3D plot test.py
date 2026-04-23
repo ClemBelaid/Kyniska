@@ -2,38 +2,56 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-# Genère 50 points (x,y,z) aléatoires
+# n le nombre de billes à générer
+n = 15
+
+# Genère n points (x,y,z) aléatoires
 np.random.seed(42)
-x = np.random.rand(50)
-y = np.random.rand(50)
-z = np.random.rand(50)
+x = np.random.rand(n)
+y = np.random.rand(n)
+z = np.random.rand(n)
 
-# Tailles n aléatoire
-n = 50 # np.random.rand(50)*50
+# Tailles s aléatoires
+s = np.random.rand(n)*60 + 30
 
-fig = plt.figure(figsize=(12, 6))
+# Projection d'un vecteur u sur un plan P de vecteur normal n
+def proj(v, n):
+    n_norm = np.sqrt(sum(n**2))
+    v_prime = np.dot(v,n)/np.dot(n,n)*n
+    return v - v_prime
 
-# Left: Creating a 3D figure
+# Création de la figure 3D
+fig = plt.figure(figsize=(16, 10))
+ax = fig.add_subplot(1, 2, 1, projection='3d')
+plt.xlabel("X")
+plt.ylabel("Y")
 
-ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-# Creating a 3D scatter plot
-ax1.scatter(x, y, z, c=z, cmap='viridis', s=n, edgecolor='k')
-ax1.set_title("3D points")
+# Création d'un scatter plot
+ax.scatter(x, y, z, c=z, cmap='viridis', s = s, edgecolor='k')
 
+# u1, u2 vecteurs directeurs du plan
+u1 = (1,0,0)
+u2 = (0,1,0)
+# Vecteur normal au plan
+normal = np.cross(u1,u2)
+# Origine O' du plan
+o_prime = (1,1,0)
 
+# Calcul des coordonnées du plan
+d = 0 # d gère la hauteur du plan
 
-# Rigth: projection 2D
+xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
+zz = (-normal[0] * xx - normal[1] * yy - d) * 1. / normal[2] # z = (-ax -by)/c
+ax.plot_surface(xx, yy, zz, alpha=0.2)
 
-# plt.plot(x,y, 0,'o')
+# Ajout d'une nouvelle figure pour afficher les points 2D projetés
+ax2 = fig.add_subplot(1,2,2)
 
-ax2 = fig.add_subplot(1, 2, 2)
-ax2.scatter(x, y, c=z, cmap='viridis', s=n, edgecolor='k')
-ax2.set_title("Projection XY")
-ax2.set_xlabel("x")
-ax2.set_ylabel("y")
-ax2.axis("equal")
+for i in range(n):
+    v = (x[i], y[i], z[i]) 
+    v_proj = proj(v,normal) # Vecteur v projeté dans le plan 2D
+    w = v_proj - o_prime  # Coordonnées du point projeté depuis l'origine O' du plan 2D
+    ax.scatter(v_proj[0], v_proj[1], v_proj[2], c ="red", s = s[i], edgecolor='k')
+    ax2.plot(np.dot(u1, w), np.dot(u2,w), 'ro', ms = s[i]/10)  # Coordonnées du point projeté, exprimées dans la base (u1,u2) du plan
 
-if __name__ == "__main__":
-    # Display the plot (rotate manually with mouse)
-    plt.tight_layout()
-    plt.show()
+plt.show()
