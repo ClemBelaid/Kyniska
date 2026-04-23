@@ -39,6 +39,20 @@ Objet 3D contenant :
 
 Liste de points 2D obtenus après projection.
 
+## Fichiers JSON
+
+Les fichiers JSON servent ici à stocker les données du projet dans un format simple et standardisé. L’idée est de pouvoir sauvegarder des structures (par exemple une mire 3D ou une observation 2D), les relire plus tard, les échanger entre plusieurs programmes/scripts, ou conserver des jeux de tests sans devoir regénérer les données à chaque fois.
+
+Dans notre cas, on y stocke :
+
+* pour une **mire** : la liste des billes avec leur `id` fixe et leurs coordonnées `x, y, z`
+* pour une **observation** : la liste des points projetés avec éventuellement leur `id`, et leurs coordonnées `u, v`
+
+Exemple : un program peut générer une projection bruitée, l’enregistrer en JSON, puis un autre peut la charger pour tester un algorithme d’identification.
+
+Introduction rapide au format JSON : https://developer.mozilla.org/fr/docs/Learn_web_development/Core/Scripting/JSON
+La librairie python : https://docs.python.org/3/library/json.html
+
 ---
 
 ## Étapes
