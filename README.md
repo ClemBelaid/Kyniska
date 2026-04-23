@@ -51,6 +51,7 @@ Dans notre cas, on y stocke :
 Exemple : un program peut générer une projection bruitée, l’enregistrer en JSON, puis un autre peut la charger pour tester un algorithme d’identification.
 
 Introduction rapide au format JSON : https://developer.mozilla.org/fr/docs/Learn_web_development/Core/Scripting/JSON
+
 La librairie python : https://docs.python.org/3/library/json.html
 
 ---
