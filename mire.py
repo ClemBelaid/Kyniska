@@ -94,19 +94,24 @@ class Mire:
     @classmethod
     def load_json(cls, filename):
         """
-        Charge une observation depuis un JSON.
+        Charge une mire depuis un JSON.
         """
         with open(filename, "r") as f:
             data = json.load(f)
 
         points = []
         ids = []
+        alignes = []
 
         for pt in data["points"]:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
+        
+        for q in data["alignes"]:
+            alignes.append([q["a"], q["b"], q["c"], q["d"]])
 
-        return cls(points, ids, data.get("name", "mire"))
+        #data.get("name", "mire")
+        return cls(points, alignes, ids)
     
     @classmethod
     def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
@@ -191,10 +196,10 @@ class Mire:
             # w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
             observ.append((np.dot(u1, u_proj), np.dot(u2, u_proj)))
         
-        return Observation(observ, self.ids)
+        return Observation(observ, v, self.ids)
 
 class Observation:
-    def __init__(self, points2d, ids=None):
+    def __init__(self, points2d, v, ids=None):
         """
         Crée une observation 2D.
 
@@ -203,6 +208,7 @@ class Observation:
         """
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
+        self.v = v
 
     def __len__(self):
         """
@@ -236,6 +242,8 @@ class Observation:
         ax.set_aspect("equal")
         plt.xlabel("x")
         plt.ylabel("y")
+        print("v = ", self.v)
+        plt.title("Projection selon le plan normal au vecteur : ")
 
         return ax
 
@@ -285,6 +293,7 @@ class Observation:
 
         points = []
         ids = []
+        alignes = []
 
         for pt in data["points"]:
             ids.append(pt["id"])
