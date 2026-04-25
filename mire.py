@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import math
 
 class Mire:
     def __init__(self, points, ids=None):
@@ -12,24 +13,6 @@ class Mire:
 
     def __len__(self):
         return len(self.points)
-
-    def __str__(self):
-        return f"Mire with {len(self.points)} points"
-    
-    def show(self, ax=None):
-        import matplotlib.pyplot as plt
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection="3d")
-
-        ax.scatter(
-            self.points[:,0],
-            self.points[:,1],
-            self.points[:,2]
-        )
-    
-        return ax
-
 
     def copy(self):
         return Mire(self.points.copy(), self.ids.copy())
@@ -63,36 +46,67 @@ class Mire:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
 
-        return cls(points, ids, data.get("name", "mire"))
+        return cls(points, ids)
+    @staticmethod
+    def perpendicular_vector(v):
+            if v[1] == 0 and v[2] == 0:
+                if v[0] == 0:
+                    raise ValueError('zero vector')
+                else:
+                    return np.cross(v, [0, 1, 0])
+            return np.cross(v, [1, 0, 0])
+
+    """def project_mire_to_plane(self, v):
+        
+        Projette une mire 3D sur un plan et renvoie une Observation indexée.
+
+        Paramètres
+        ----------
+        mire : Mire
+            Mire contenant les points 3D.
+
+        v : array-like (3,)
+            Vecteur normal du plan.
+
+        Retour
+        ------
+        Observation
+            Points projetés en 2D avec les ids de la mire.
+            Sert de base pour générer ensuite des observations
+            bruitées / non indexées.
+        
+
+        # Nombre de billes n
+        n = self.points.length()
+        n_norm = np.sqrt(sum(n**2))
+
+        # Origine O' du plan
+        o_prime = (1,1,0)
+
+        # Calcul des coordonnées du plan
+        d = 0   # d gère la hauteur du plan
+        xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
+        zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c
+
+        # Calcul de deux vecteurs directeurs (u1, u2) du plan, orthogonaux à v
+        u1 = self.perpendicular_vector(v) 
+        u2 = np.cross(v, u1)   # u2 est orthogonal à la fois à v et à u1
+        
+        observ = []
+
+        for pt in self.points:
+            # Vecteur u des coordonnées de la bille
+            u = (pt["x"], pt["y"], pt["z"])
+
+             # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
+            u_prime = np.dot(u,v)/np.dot(v,v)*v
+            u_proj = u - u_prime
+
+            w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
+            observ.append((np.dot(u1, w), np.dot(u2,w)))
+        
+        return Observation(observ, self.ids)"""
     
-    @classmethod
-    def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
-        points = []
-        for _ in range(nb_billes):
-
-            z = np.random.uniform(0, hauteur)
-
-            rayon_max_z = rayon_base + (z / hauteur) * (rayon_sommet - rayon_base)
-            r = rayon_max_z * np.sqrt(np.random.uniform(0, 1))
-            theta = np.random.uniform(0, 2 * np.pi)
-
-            x = r * np.cos(theta)
-            y = r * np.sin(theta)
-            
-            points.append([x, y, z])
-        return cls(points)
-    
-    @classmethod
-    def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
-        points = []
-
-        for _ in range(nb_billes):
-            x = np.random.uniform(-largeur / 2, largeur / 2)
-            y = np.random.uniform(-longueur / 2, longueur / 2)
-            z = np.random.uniform(0, epaisseur)
-            
-            points.append([x, y, z])   
-        return cls(points)
 
 class Observation:
     def __init__(self, points2d, ids=None):
@@ -101,32 +115,6 @@ class Observation:
 
     def __len__(self):
         return len(self.points)
-
-    def __str__(self):
-        return f"Mire with {len(self.points)} points"
-    
-    def show(self, ax=None):
-        import matplotlib.pyplot as plt
-    
-        if ax is None:
-            fig, ax = plt.subplots()
-    
-        ax.scatter(
-            self.points[:,0],
-            self.points[:,1]
-        )
-    
-        ax.set_aspect("equal")
-    
-        return ax
-
-        ax.scatter(
-            self.points[:,0],
-            self.points[:,1],
-            self.points[:,2]
-        )
-    
-        return ax
 
     def copy(self):
         return Observation(
@@ -164,30 +152,74 @@ class Observation:
 
         return cls(points2d=points, ids=ids)
 
+def project_mire_to_plane(self, v):
+        """
+        Projette une mire 3D sur un plan et renvoie une Observation indexée.
 
-def project_mire_to_plane(mire, plane_normal, direction=None):
-    """
-    Projette une mire 3D sur un plan et renvoie une Observation indexée.
+        Paramètres
+        ----------
+        mire : Mire
+            Mire contenant les points 3D.
 
-    Paramètres
-    ----------
-    mire : Mire
-        Mire contenant les points 3D.
+        v : array-like (3,)
+            Vecteur normal du plan.
 
-    plane_point : array-like (3,)
-        Un point du plan.
+        Retour
+        ------
+        Observation
+            Points projetés en 2D avec les ids de la mire.
+            Sert de base pour générer ensuite des observations
+            bruitées / non indexées.
+        """
 
-    plane_normal : array-like (3,)
-        Vecteur normal du plan.
+        # Nombre de billes n
+        n = self.__len__()
+        #n_norm = np.sqrt(sum(n**2))
+        
+        # Origine O' du plan
+        o_prime = (1,1,0)
 
-    direction : array-like (3,), optionnel
-        Direction de projection.
-        Si None, projection orthogonale.
+        # Calcul des coordonnées du plan
+        d = 0   # d gère la hauteur du plan
+        """xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
+        zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c"""
 
-    Retour
-    ------
-    Observation
-        Points projetés en 2D avec les ids de la mire.
-        Sert de base pour générer ensuite des observations
-        bruitées / non indexées.
-    """
+        # Calcul de deux vecteurs directeurs (u1, u2) du plan, orthogonaux à v
+        u1 = Mire.perpendicular_vector(v) 
+        u2 = np.cross(v, u1)   # u2 est orthogonal à la fois à v et à u1
+        
+   
+        R_list = [] #liste de matrices de rotation 
+        thetas = np.radians([-30,0,30 ]) # rotation selon l'axe x(intuition:"Hochement de tête de haut en bas"))
+        for theta in thetas:
+            R=np.array([[1,0,0],[0,np.cos(theta),-np.sin(theta)],[0,np.sin(theta),np.cos(theta)]])
+            R_list.append(R)
+        cliches2D_3=[]
+        for R in R_list:
+            X_cam = (R @ self.points.T).T
+            observ = []
+            for u in X_cam:
+                    
+                    # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
+                    u_prime = np.dot(u,v)/np.dot(v,v)*v
+                    u_proj = u - u_prime
+
+                    w = u_proj - o_prime #vecteur w qui va de o_prime vers u_proj 
+                    """observ.append((np.dot(u1, w), np.dot(u2,w))) ajout_commentaire : on se place dans le cas orthornormé""" 
+                    #cas non orthonormé:
+                    a11 = np.dot(u1, u1)
+                    a12 = np.dot(u1, u2)
+                    a22 = np.dot(u2, u2)
+
+                    b1 = np.dot(w, u1)
+                    b2 = np.dot(w, u2)
+                    det = a11 * a22 - a12 * a12
+                    a = (b1 * a22 - b2 * a12) / det
+                    b = (b2 * a11 - b1 * a12) / det
+                    observ.append((a, b))
+            cliches2D_3.append(Observation(observ, self.ids))
+        return cliches2D_3       
+
+    
+      
+            
