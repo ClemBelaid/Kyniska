@@ -3,6 +3,12 @@ import numpy as np
 
 class Mire:
     def __init__(self, points, ids=None):
+        """
+        Crée une mire 3D.
+
+        points : liste / array de points (n,3)
+        ids : identifiants des billes (optionnel)
+        """
         self.points = np.array(points, dtype=float)
 
         if ids is None:
@@ -11,12 +17,24 @@ class Mire:
             self.ids = np.array(ids)
 
     def __len__(self):
+        """
+        Renvoie le nombre de points de la mire.
+        """
         return len(self.points)
 
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
-    def show(self, ax=None):
+
+    def draw(self, ax=None):
+        """
+        Affiche la mire avec matplotlib (3D).
+
+        ax : axe matplotlib optionnel.
+
+        appeler plt.show() après utilisation
+        pour afficher la fenêtre.
+        """
         import matplotlib.pyplot as plt
         if ax is None:
             fig = plt.figure()
@@ -32,9 +50,15 @@ class Mire:
 
 
     def copy(self):
+        """
+        Renvoie une copie indépendante.
+        """
         return Mire(self.points.copy(), self.ids.copy())
 
     def save_json(self, filename):
+        """
+        Sauvegarde l'observation en JSON.
+        """
         data = {
             "name": filename,
             "points": []
@@ -53,6 +77,9 @@ class Mire:
 
     @classmethod
     def load_json(cls, filename):
+        """
+        Charge une observation depuis un JSON.
+        """
         with open(filename, "r") as f:
             data = json.load(f)
 
@@ -63,20 +90,81 @@ class Mire:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
 
-        return cls(points, ids)
+        return cls(points, ids, data.get("name", "mire"))
+    
+    @classmethod
+    def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+        points = []
+        for _ in range(nb_billes):
+
+            z = np.random.uniform(0, hauteur)
+
+            rayon_max_z = rayon_base + (z / hauteur) * (rayon_sommet - rayon_base)
+            r = rayon_max_z * np.sqrt(np.random.uniform(0, 1))
+            theta = np.random.uniform(0, 2 * np.pi)
+
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+            
+            points.append([x, y, z])
+        return cls(points)
+    @classmethod
+    def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+        points = []
+        for _ in range(nb_billes):
+            z = np.random.uniform(0, hauteur)
+            r = rayon_base + (z / hauteur) * (rayon_sommet - rayon_base)
+            theta = np.random.uniform(0, 2 * np.pi)
+
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+            
+            points.append([x, y, z])
+            
+        return cls(points)
+    
+    @classmethod
+    def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
+        points = []
+
+        for _ in range(nb_billes):
+            x = np.random.uniform(-largeur / 2, largeur / 2)
+            y = np.random.uniform(-longueur / 2, longueur / 2)
+            z = np.random.uniform(0, epaisseur)
+            
+            points.append([x, y, z])   
+        return cls(points)
 
 class Observation:
     def __init__(self, points2d, ids=None):
+        """
+        Crée une observation 2D.
+
+        points2d : points (n,2)
+        ids : optionnel
+        """
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
 
     def __len__(self):
+        """
+        Renvoie le nombre de points observés.
+        """
         return len(self.points)
 
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
-    def show(self, ax=None):
+    def draw(self, ax=None):
+        """
+        Affiche la mire / observation avec matplotlib.
+    
+        ax : axe matplotlib optionnel.
+        Si None, un axe est créé.
+    
+        Penser à appeler plt.show() après utilisation
+        pour afficher la fenêtre.
+        """
         import matplotlib.pyplot as plt
     
         if ax is None:
@@ -100,12 +188,18 @@ class Observation:
         return ax
 
     def copy(self):
+        """
+        Renvoie une copie indépendante.
+        """
         return Observation(
             self.points.copy(),
             self.ids.copy()
         )
 
     def save_json(self, filename):
+        """
+        Sauvegarde l'observation en JSON.
+        """
         data = {
             "name": filename,
             "points": []
@@ -123,6 +217,9 @@ class Observation:
 
     @classmethod
     def load_json(cls, filename):
+        """
+        Charge une observation depuis un JSON.
+        """
         with open(filename, "r") as f:
             data = json.load(f)
 
@@ -135,30 +232,3 @@ class Observation:
 
         return cls(points2d=points, ids=ids)
 
-
-def project_mire_to_plane(mire, plane_normal, direction=None):
-    """
-    Projette une mire 3D sur un plan et renvoie une Observation indexée.
-
-    Paramètres
-    ----------
-    mire : Mire
-        Mire contenant les points 3D.
-
-    plane_point : array-like (3,)
-        Un point du plan.
-
-    plane_normal : array-like (3,)
-        Vecteur normal du plan.
-
-    direction : array-like (3,), optionnel
-        Direction de projection.
-        Si None, projection orthogonale.
-
-    Retour
-    ------
-    Observation
-        Points projetés en 2D avec les ids de la mire.
-        Sert de base pour générer ensuite des observations
-        bruitées / non indexées.
-    """
