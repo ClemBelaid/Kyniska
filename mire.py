@@ -107,6 +107,20 @@ class Mire:
             
             points.append([x, y, z])
         return cls(points)
+    @classmethod
+    def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+        points = []
+        for _ in range(nb_billes):
+            z = np.random.uniform(0, hauteur)
+            r = rayon_base + (z / hauteur) * (rayon_sommet - rayon_base)
+            theta = np.random.uniform(0, 2 * np.pi)
+
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+            
+            points.append([x, y, z])
+            
+        return cls(points)
     
     @classmethod
     def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
