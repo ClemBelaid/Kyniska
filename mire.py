@@ -25,6 +25,7 @@ class Mire:
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
+
     def draw(self, ax=None):
         """
         Affiche la mire avec matplotlib (3D).
@@ -154,7 +155,7 @@ class Observation:
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
-    def show(self, ax=None):
+    def draw(self, ax=None):
         """
         Affiche la mire / observation avec matplotlib.
     
