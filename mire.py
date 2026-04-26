@@ -2,11 +2,13 @@ import json
 import numpy as np
 
 class Mire:
-    def __init__(self, points, ids=None):
+    def __init__(self, points, alignes, ids=None):
         """
         Crée une mire 3D.
 
         points : liste / array de points (n,3)
+        alignes : liste de quadruplets (a,b,c,d) de points alignés connus à l'avance
+        # Si on ne les connait pas encore, on peut peut-être écrire une fonction pour les calculer...?
         ids : identifiants des billes (optionnel)
         """
         self.points = np.array(points, dtype=float)
@@ -15,6 +17,8 @@ class Mire:
             self.ids = np.arange(len(points))
         else:
             self.ids = np.array(ids)
+        
+        self.alignes = np.array(alignes)
 
     def __len__(self):
         """
@@ -45,6 +49,10 @@ class Mire:
             self.points[:,1],
             self.points[:,2]
         )
+
+        plt.xlabel("x")
+        plt.ylabel("y")
+
     
         return ax
 
@@ -57,11 +65,12 @@ class Mire:
 
     def save_json(self, filename):
         """
-        Sauvegarde l'observation en JSON.
+        Sauvegarde la mire en JSON.
         """
         data = {
             "name": filename,
-            "points": []
+            "points": [],
+            "alignes" : []
         }
 
         for pid, p in zip(self.ids, self.points):
@@ -72,25 +81,38 @@ class Mire:
                 "z": float(p[2])
             })
 
+        for q in self.alignes:
+            data["alignes"].append({
+                "a": int(q[0]), # IDs des points alignés, ici représentés par des int
+                "b": int(q[1]), # A voir si on décide que les IDs sont finalement des chars
+                "c": int(q[2]),
+                "d": int(q[3])
+            })
+
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
 
     @classmethod
     def load_json(cls, filename):
         """
-        Charge une observation depuis un JSON.
+        Charge une mire depuis un JSON.
         """
         with open(filename, "r") as f:
             data = json.load(f)
 
         points = []
         ids = []
+        alignes = []
 
         for pt in data["points"]:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
+        
+        for q in data["alignes"]:
+            alignes.append([q["a"], q["b"], q["c"], q["d"]])
 
-        return cls(points, ids, data.get("name", "mire"))
+        #data.get("name", "mire")
+        return cls(points, alignes, ids)
     
     @classmethod
     def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
@@ -135,6 +157,15 @@ class Mire:
             points.append([x, y, z])   
         return cls(points)
     
+    # Voir si on en fait pas une méthode de classe... ?
+    def perpendicular_vector(self, v):
+        if v[1] == 0 and v[2] == 0:
+            if v[0] == 0:
+                raise ValueError('zero vector')
+            else:
+                return np.cross(v, [0, 1, 0])
+        return np.cross(v, [1, 0, 0])
+
     def project_mire_to_plane(self, v):
         """
         Projette une mire 3D sur un plan et renvoie une Observation indexée.
@@ -156,11 +187,10 @@ class Mire:
         """
 
         # Nombre de billes n
-        n = self.points.length()
-        n_norm = np.sqrt(sum(n**2))
+        n = len(self.points)
 
         # Origine O' du plan
-        o_prime = (1,1,0)
+        #o_prime = (0,0,0)
 
         # Calcul des coordonnées du plan
         d = 0   # d gère la hauteur du plan
@@ -187,7 +217,7 @@ class Mire:
         return Observation(observ, self.ids)
 
 class Observation:
-    def __init__(self, points2d, ids=None):
+    def __init__(self, points2d, v, ids=None):
         """
         Crée une observation 2D.
 
@@ -196,6 +226,7 @@ class Observation:
         """
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
+        self.v = v
 
     def __len__(self):
         """
@@ -227,7 +258,11 @@ class Observation:
         )
     
         ax.set_aspect("equal")
-    
+        plt.xlabel("x")
+        plt.ylabel("y")
+        print("v = ", self.v)
+        plt.title("Projection selon le plan normal au vecteur : ")
+
         return ax
 
         ax.scatter(
@@ -276,10 +311,42 @@ class Observation:
 
         points = []
         ids = []
+        alignes = []
 
         for pt in data["points"]:
             ids.append(pt["id"])
             points.append([pt["u"], pt["v"]])
 
         return cls(points2d=points, ids=ids)
+
+    def ajouterBruit(self, posRatio, negRatio):
+        """
+        Crée une observation 2D bruitée.
+        points2d : points (n,2)
+        pos : float (entre 0 et 1) du pourcentage (?) de bruit positif
+            0 = aucun bruit positif, 1 = autant de bruit positif que de vraies billes (par ex ?)
+        neg : float (entre 0 et 1) du pourcentage (?) de bruit négatif
+            0 = aucun bruit négatif, 1 = image entièrement vidée ?
+        ids : optionnel
+        """
+        observ_copy = self.copy()
+        np.random.seed(42)
+
+        # On calcul le nombre de billes à supprimer (faux négatifs)
+        # Suppression aléatoire -> à voir, cela peut être modifié également ?
+        nbFauxNeg = len(self)*negRatio
+        for i in range(nbFauxNeg):
+            k = np.random.randint(0, len(self))
+            # Je pense qu'on ne peut pas générer directement nbFauxNeg nombres aléatoires dans [0, n-1]
+            # Car il y aurait un risque de doublons et donc pas le bon nombre de billes supprimées
+            np.delete (self.points, k)
+
+        # Genère nbFauxPos points de dimension 3 aléatoires
+        nbFauxPos = len(self)*posRatio
+        newPoints = np.random.rand(nbFauxPos, 3)
+
+        # Tailles s aléatoires ?
+        #s = np.random.rand(nbFauxPos)*60 + 30
+
+        self.points.append(newPoints)
 
