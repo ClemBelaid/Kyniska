@@ -180,7 +180,7 @@ def project_mire_to_plane(self, v):
         o_prime = (1,1,0)
 
         # Calcul des coordonnées du plan
-        d = 0   # d gère la hauteur du plan
+        #d = 0   # d gère la hauteur du plan
         """xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
         zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c"""
 
@@ -195,6 +195,7 @@ def project_mire_to_plane(self, v):
             R=np.array([[1,0,0],[0,np.cos(theta),-np.sin(theta)],[0,np.sin(theta),np.cos(theta)]])
             R_list.append(R)
         cliches2D_3=[]
+        vect_projetés_dans_le_2D=[]
         for R in R_list:
             X_cam = (R @ self.points.T).T
             observ = []
@@ -203,7 +204,7 @@ def project_mire_to_plane(self, v):
                     # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
                     u_prime = np.dot(u,v)/np.dot(v,v)*v
                     u_proj = u - u_prime
-
+                    vect_projetés_dans_le_2D.append(u_proj)
                     w = u_proj - o_prime #vecteur w qui va de o_prime vers u_proj 
                     """observ.append((np.dot(u1, w), np.dot(u2,w))) ajout_commentaire : on se place dans le cas orthornormé""" 
                     #cas non orthonormé:
@@ -218,7 +219,7 @@ def project_mire_to_plane(self, v):
                     b = (b2 * a11 - b1 * a12) / det
                     observ.append((a, b))
             cliches2D_3.append(Observation(observ, self.ids))
-        return cliches2D_3       
+        return cliches2D_3, vect_projetés_dans_le_2D
 
     
       
