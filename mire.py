@@ -29,6 +29,7 @@ class Mire:
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
+
     def draw(self, ax=None):
         """
         Affiche la mire avec matplotlib (3D).
@@ -129,6 +130,20 @@ class Mire:
             
             points.append([x, y, z])
         return cls(points)
+    @classmethod
+    def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+        points = []
+        for _ in range(nb_billes):
+            z = np.random.uniform(0, hauteur)
+            r = rayon_base + (z / hauteur) * (rayon_sommet - rayon_base)
+            theta = np.random.uniform(0, 2 * np.pi)
+
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+            
+            points.append([x, y, z])
+            
+        return cls(points)
     
     @classmethod
     def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
@@ -189,14 +204,17 @@ class Mire:
         observ = []
 
         for pt in self.points:
-            # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
-            u_prime = np.dot(pt, v)/np.dot(v,v)*v
-            u_proj = pt - u_prime
+            # Vecteur u des coordonnées de la bille
+            u = (pt["x"], pt["y"], pt["z"])
 
-            # w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
-            observ.append((np.dot(u1, u_proj), np.dot(u2, u_proj)))
+             # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
+            u_prime = np.dot(u,v)/np.dot(v,v)*v
+            u_proj = u - u_prime
+
+            w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
+            observ.append((np.dot(u1, w), np.dot(u2,w)))
         
-        return Observation(observ, v, self.ids)
+        return Observation(observ, self.ids)
 
 class Observation:
     def __init__(self, points2d, v, ids=None):
@@ -219,7 +237,7 @@ class Observation:
     def __str__(self):
         return f"Mire with {len(self.points)} points"
     
-    def show(self, ax=None):
+    def draw(self, ax=None):
         """
         Affiche la mire / observation avec matplotlib.
     
