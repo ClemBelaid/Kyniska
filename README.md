@@ -39,6 +39,7 @@ Objet 3D contenant :
 
 Liste de points 2D obtenus après projection.
 
+<<<<<<< HEAD
 ## Fichiers JSON
 
 Les fichiers JSON servent ici à stocker les données du projet dans un format simple et standardisé. L’idée est de pouvoir sauvegarder des structures (par exemple une mire 3D ou une observation 2D), les relire plus tard, les échanger entre plusieurs programmes/scripts, ou conserver des jeux de tests sans devoir regénérer les données à chaque fois.
@@ -54,6 +55,8 @@ Introduction rapide au format JSON : https://developer.mozilla.org/fr/docs/Learn
 
 La librairie python : https://docs.python.org/3/library/json.html
 
+=======
+>>>>>>> 2019281 (README + documentation mire.py)
 ---
 
 ## Étapes
