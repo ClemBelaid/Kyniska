@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 class Observation:
-    def __init__(self, points2d, v, ids=None):
+    def __init__(self, points2d, v, ids=None, alignes=None):
         """
         Crée une observation 2D.
 
