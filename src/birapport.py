@@ -14,15 +14,49 @@ def calculBirapport(a, b, c, d):
     nd = np.linalg.norm(d)
     return (nc-na)/(nc-nb)*(nd-na)/(nd-nb) 
 
-def detecter_quadruple_alignes_observation(obs: Observation, nb=4):
+def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
     """
-    Fonction detectant et inscrivant un quadruler de billes alignees dans une observation.
+    Fonction détectant et inscrivant un quadruplet de billes alignées
+    dans une observation.
+
     Args:
         obs : une observation de la classe Observation
-        nb : nombre de bille alignee a detecter pour la generalisation ca ne mange pas de pains.
+        eps : seuil de tolérance, 0 pour exact
+
     Returns:
-        (int, (Array like)) : nombre de quaddruplet detecter + liste des 4-uplet de ids
+        (int, array-like) : nombre de quadruplets détectés
+        + liste des 4-uplets d'identifiants
     """
+    n = len(obs.points2d)
+    points = np.asarray(obs.points2d)
+
+    nb_4uplets = 0
+    liste_4uplets = []
+
+    for i in range(n):
+        for j in range(i + 1, n):
+
+            pi, pj = points[i], points[j]
+            alignes = [i, j]
+
+            for k in range(j + 1, n):
+                pk = points[k]
+
+                # nb : on ne s'embête pas avec les sqrt,
+                # les normes sont au carré
+                u = pj - pi
+                v = pk - pi
+
+                # produit vectoriel 2D nul <=> alignement
+                if abs(u[0] * v[1] - u[1] * v[0]) <= eps:
+                    alignes.append(k)
+
+            if len(alignes) >= 4:
+                nb_4uplets += 1
+                liste_4uplets.append(tuple(alignes[:4]))
+
+    return nb_4uplets, liste_4uplets
+
 
 # Supposons que l'objet mire contient une liste des points *alignés* qui sont donc CONNUS à l'avance !!
 # Avec des birapports DIFFERENTS (sinon aucun intérêt !!)
