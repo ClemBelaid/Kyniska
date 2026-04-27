@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 class Mire:
-    def __init__(self, points, alignes, ids=None):
+    def __init__(self, points, ids=None, alignes=None):
         """
         Crée une mire 3D.
 
