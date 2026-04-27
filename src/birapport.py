@@ -1,4 +1,5 @@
 from mire import Mire
+from observation import Observation
 import numpy as np
 import itertools
 #from observation import Observation ---> Une fois que la classe Observation sera créée
@@ -12,6 +13,16 @@ def calculBirapport(a, b, c, d):
     nc = np.linalg.norm(c)
     nd = np.linalg.norm(d)
     return (nc-na)/(nc-nb)*(nd-na)/(nd-nb) 
+
+def detecter_quadruple_alignes_observation(obs: Observation, nb=4):
+    """
+    Fonction detectant et inscrivant un quadruler de billes alignees dans une observation.
+    Args:
+        obs : une observation de la classe Observation
+        nb : nombre de bille alignee a detecter pour la generalisation ca ne mange pas de pains.
+    Returns:
+        (int, (Array like)) : nombre de quaddruplet detecter + liste des 4-uplet de ids
+    """
 
 # Supposons que l'objet mire contient une liste des points *alignés* qui sont donc CONNUS à l'avance !!
 # Avec des birapports DIFFERENTS (sinon aucun intérêt !!)
