@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from itertools import combinations
 
 class Mire:
     def __init__(self, points, alignes, ids=None):
@@ -144,6 +145,39 @@ class Mire:
             points.append([x, y, z])
             
         return cls(points)
+    def ajouter_ligne_alignee(self, p0, direction, spacing):
+        """Ajoute 4 points alignés et met à jour les index d'alignements."""
+        d_norm = np.array(direction) / np.linalg.norm(direction)
+        steps = [0] + list(np.cumsum(spacing))
+        pts = np.array([np.array(p0) + s * d_norm for s in steps])
+
+        start_idx = len(self.points)
+        new_ids = np.arange(start_idx, start_idx + 4)
+
+        self.points = np.vstack([self.points, pts])
+        self.ids = np.concatenate([self.ids, new_ids])
+
+        row = new_ids.reshape(1, 4)
+        self.alignes = np.vstack([self.alignes, row]) if self.alignes.size else row
+        print(f"Ligne ajoutée : {new_ids.tolist()}")
+
+    def detecter_alignements(self, tol=1e-2):
+        """Machin combinatoire pour trouver les quadruplets alignés."""
+        res = []
+        for idxs in combinations(range(len(self.points)), 4):
+            pts = self.points[list(idxs)]
+            A, B = pts[0], pts[1]
+            ab = B - A
+            mag_ab = np.linalg.norm(ab) + 1e-9
+            
+            d_c = np.linalg.norm(np.cross(ab, pts[2] - A)) / mag_ab
+            d_d = np.linalg.norm(np.cross(ab, pts[3] - A)) / mag_ab
+            
+            if d_c < tol and d_d < tol:
+                res.append(list(idxs))
+                
+        self.alignes = np.array(res) if res else np.empty((0, 4))
+        print(f"machin : {len(res)} alignements trouvés.")
     
     @classmethod
     def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
