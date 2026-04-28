@@ -28,8 +28,8 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
         (int, array-like) : nombre de quadruplets détectés
         + liste des 4-uplets d'identifiants
     """
-    n = len(obs.points2d)
-    points = np.asarray(obs.points2d)
+    n = len(obs.points)
+    points = np.asarray(obs.points)
 
     nb_4uplets = 0
     liste_4uplets = []
@@ -38,7 +38,7 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
         for j in range(i + 1, n):
 
             pi, pj = points[i], points[j]
-            alignes = [i, j]
+            alignes = [pi, pj]
 
             for k in range(j + 1, n):
                 pk = points[k]
@@ -50,7 +50,7 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
 
                 # produit vectoriel 2D nul <=> alignement
                 if abs(u[0] * v[1] - u[1] * v[0]) <= eps:
-                    alignes.append(k)
+                    alignes.append(pk)
 
             if len(alignes) >= 4:
                 nb_4uplets += 1
@@ -62,7 +62,7 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
 # Supposons que l'objet mire contient une liste des points *alignés* qui sont donc CONNUS à l'avance !!
 # Avec des birapports DIFFERENTS (sinon aucun intérêt !!)
 # Par exemple : [(0,1,2,3), (4,5,6,7)]
-def identification(m, p1, p2, p3, epsilon = 0):
+def identification(m, p1, p2, p3, epsilon = 0.01):
     """
     Entrée : une mire m, trois projections différentes p1, p2, p3
     Sortie : Identification des points 2D de chaque projection en les associant à leurs IDs
@@ -74,18 +74,42 @@ def identification(m, p1, p2, p3, epsilon = 0):
         (a,b,c,d) = (m.points[ida], m.points[idb], m.points[idc], m.points[idd])
         listeBR.append(calculBirapport(a,b,c,d))
 
-    p1_alignes = detecter_quadruple_alignes_observation(p1, 4)
-    #p2_alignes = detecter_quadruple_alignes_observation(p2, 4)
-    #p3_alignes = []
+    print("listeBR = ", listeBR)
 
-    p_ids = []
+    p1_alignes = detecter_quadruple_alignes_observation(p1, 4)[1]
+    p2_alignes = detecter_quadruple_alignes_observation(p2, 4)[1]
+    p3_alignes = detecter_quadruple_alignes_observation(p3, 4)[1]
+
+    p_ids_candidats = []
+    p_ids1 = []
+    p_ids2 = []
 
     for q in p1_alignes:
         (a,b,c,d) = q
+        print("p1")
+        print(a,b,c,d)
         n = calculBirapport(a,b,c,d)
+        print("birapport = ", n)
         for i in range(len(listeBR)):
             if abs(n - listeBR[i]) <= epsilon :
-                (ida, idb, idc, idd) = m.alignes(i)
-                p_ids.extend(([ida, a], [idb, b], [idc, c], [idd, d])) 
+                candidat = m.alignes[i]
+                print("candidat =", candidat)
+                p_ids_candidats.append(candidat)
+                #p_ids1.extend([]) ---> Se souvenir des coordonnées (dans la projection) des points candidats et de leur IDs (dans la mire)
+    
+    for q in p2_alignes:
+        (a,b,c,d) = q
+        print("p2")
+        print(a,b,c,d)
+        n = calculBirapport(a,b,c,d)
+        print("birapport = ", n)
+        for i in range(len(listeBR)):
+            if abs(n - listeBR[i]) <= epsilon :
+                candidat = m.alignes[i]
+                print("candidat =", candidat)
+                if np.any(np.all(candidat == p_ids_candidats, axis=1)):
+                    p_ids.append(candidat)
+                else:
+                    p_ids_candidats.append(candidat)
     
     return p_ids
