@@ -2,3 +2,4 @@ __pycache__/
 *.json
 rapport/build
 test.py
+*.egg-info/
