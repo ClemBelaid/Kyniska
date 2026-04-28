@@ -1,8 +1,9 @@
 import json
 import numpy as np
+from observation import Observation 
 
 class Mire:
-    def __init__(self, points, alignes, ids=None):
+    def __init__(self, points, ids=None, alignes=None, ):
         """
         Crée une mire 3D.
 
@@ -211,7 +212,7 @@ class Mire:
             u_prime = np.dot(u,v)/np.dot(v,v)*v
             u_proj = u - u_prime
 
-            w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
-            observ.append((np.dot(u1, w), np.dot(u2,w)))
+            # Remarque : cette ligne n'est peut-être pas nécessaire ? 
+            observ.append((np.dot(u1, u_proj), np.dot(u2,u_proj)))
         
         return Observation(observ, self.ids)
