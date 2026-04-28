@@ -1,8 +1,8 @@
-from src.mire import Mire
+from core import Mire
+from core.matching import identification
 import sys
 
 if __name__ == "__main__":
-    # la liste de arg est donner dans sys.argv, le premier etant le chemin du fichier python
     argc = len(sys.argv)
     if argc == 1 :
         print("Usage: program <mire> <nb projections> <projections...>\n"
@@ -13,5 +13,5 @@ if __name__ == "__main__":
               "    ...\n",
             file=sys.stderr)
         sys.exit(1)
-    # TODO
+
     print("TODO : identifier les billes des projections")
