@@ -1,3 +1,4 @@
+from src.observation import Observation
 import json
 import numpy as np
 
@@ -194,8 +195,17 @@ class Mire:
 
         # Calcul des coordonnées du plan
         d = 0   # d gère la hauteur du plan
-        xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
-        zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c
+        if (v[2] == 0):
+            if(v[0] == 0):
+                xx, zz = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
+                yy = 0
+            else:
+                # Si c = 0, on a juste ax + by = 0 <=> ax = -by <=> x = -by/a
+                yy = np.meshgrid(np.linspace(0,1,20))
+                xx = -v[1]*yy/v[0]
+        else:
+            xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
+            zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c
 
         # Calcul de deux vecteurs directeurs (u1, u2) du plan, orthogonaux à v
         u1 = self.perpendicular_vector(v) 
@@ -205,13 +215,11 @@ class Mire:
 
         for pt in self.points:
             # Vecteur u des coordonnées de la bille
-            u = (pt["x"], pt["y"], pt["z"])
+            u = (pt[0], pt[1], pt[2])
 
              # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
             u_prime = np.dot(u,v)/np.dot(v,v)*v
-            u_proj = u - u_prime
-
-            w = u_proj - o_prime # Remarque : cette ligne n'est peut-être pas nécessaire ? 
+            w = u - u_prime
             observ.append((np.dot(u1, w), np.dot(u2,w)))
         
-        return Observation(observ, self.ids)
+        return Observation(observ, v, self.ids)

@@ -7,6 +7,7 @@ class Observation:
         Crée une observation 2D.
 
         points2d : points (n,2)
+        v : vecteur normal au plan
         ids : optionnel
         """
         self.points = np.array(points2d, dtype=float)
@@ -45,8 +46,7 @@ class Observation:
         ax.set_aspect("equal")
         plt.xlabel("x")
         plt.ylabel("y")
-        print("v = ", self.v)
-        plt.title("Projection selon le plan normal au vecteur : ")
+        plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
 
         return ax
 
