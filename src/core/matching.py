@@ -1,19 +1,8 @@
-from src.mire import Mire
-from src.observation import Observation
+from .mire import Mire
+from .observation import Observation
+from .geometry import calculBirapport
 import numpy as np
 import itertools
-
-# Gérer le cas où nc = nb ou bien nd = nb (division par zéro)
-def calculBirapport(a, b, c, d):
-    """
-    Entrée : points en 3D
-    Sortie : birapport (a,b,c,d)
-    """
-    na = np.linalg.norm(a)
-    nb = np.linalg.norm(b)
-    nc = np.linalg.norm(c)
-    nd = np.linalg.norm(d)
-    return (nc-na)/(nc-nb)*(nd-na)/(nd-nb) 
 
 def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
     """
@@ -43,12 +32,9 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
             for k in range(j + 1, n):
                 pk = points[k]
 
-                # nb : on ne s'embête pas avec les sqrt,
-                # les normes sont au carré
                 u = pj - pi
                 v = pk - pi
 
-                # produit vectoriel 2D nul <=> alignement
                 if abs(u[0] * v[1] - u[1] * v[0]) <= eps:
                     alignes.append(pk)
 
@@ -59,15 +45,12 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
     return nb_4uplets, liste_4uplets
 
 
-# Supposons que l'objet mire contient une liste des points *alignés* qui sont donc CONNUS à l'avance !!
-# Avec des birapports DIFFERENTS (sinon aucun intérêt !!)
-# Par exemple : [(0,1,2,3), (4,5,6,7)]
 def identification(m, p1, p2, p3, epsilon = 0.01):
     """
     Entrée : une mire m, trois projections différentes p1, p2, p3
     Sortie : Identification des points 2D de chaque projection en les associant à leurs IDs
     """
-    listeBR = [] # Liste des birapports de la mire
+    listeBR = []
 
     for q in m.alignes:
         (ida,idb,idc,idd) = q
@@ -95,8 +78,7 @@ def identification(m, p1, p2, p3, epsilon = 0.01):
                 candidat = m.alignes[i]
                 print("candidat =", candidat)
                 p_ids_candidats.append(candidat)
-                #p_ids1.extend([]) ---> Se souvenir des coordonnées (dans la projection) des points candidats et de leur IDs (dans la mire)
-    
+
     for q in p2_alignes:
         (a,b,c,d) = q
         print("p2")
@@ -111,5 +93,5 @@ def identification(m, p1, p2, p3, epsilon = 0.01):
                     p_ids.append(candidat)
                 else:
                     p_ids_candidats.append(candidat)
-    
+
     return p_ids

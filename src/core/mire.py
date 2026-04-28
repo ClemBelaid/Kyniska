@@ -1,4 +1,3 @@
-from src.observation import Observation
 import json
 import numpy as np
 
@@ -18,7 +17,7 @@ class Mire:
             self.ids = np.arange(len(points))
         else:
             self.ids = np.array(ids)
-        
+
         self.alignes = np.array(alignes)
 
     def __len__(self):
@@ -29,7 +28,6 @@ class Mire:
 
     def __str__(self):
         return f"Mire with {len(self.points)} points"
-    
 
     def draw(self, ax=None):
         """
@@ -54,9 +52,7 @@ class Mire:
         plt.xlabel("x")
         plt.ylabel("y")
 
-    
         return ax
-
 
     def copy(self):
         """
@@ -84,8 +80,8 @@ class Mire:
 
         for q in self.alignes:
             data["alignes"].append({
-                "a": int(q[0]), # IDs des points alignés, ici représentés par des int
-                "b": int(q[1]), # A voir si on décide que les IDs sont finalement des chars
+                "a": int(q[0]),
+                "b": int(q[1]),
                 "c": int(q[2]),
                 "d": int(q[3])
             })
@@ -108,13 +104,12 @@ class Mire:
         for pt in data["points"]:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
-        
+
         for q in data["alignes"]:
             alignes.append([q["a"], q["b"], q["c"], q["d"]])
 
-        #data.get("name", "mire")
         return cls(points, alignes, ids)
-    
+
     @classmethod
     def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
         points = []
@@ -128,9 +123,10 @@ class Mire:
 
             x = r * np.cos(theta)
             y = r * np.sin(theta)
-            
+
             points.append([x, y, z])
         return cls(points)
+
     @classmethod
     def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
         points = []
@@ -141,11 +137,11 @@ class Mire:
 
             x = r * np.cos(theta)
             y = r * np.sin(theta)
-            
+
             points.append([x, y, z])
-            
+
         return cls(points)
-    
+
     @classmethod
     def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
         points = []
@@ -154,72 +150,6 @@ class Mire:
             x = np.random.uniform(-largeur / 2, largeur / 2)
             y = np.random.uniform(-longueur / 2, longueur / 2)
             z = np.random.uniform(0, epaisseur)
-            
-            points.append([x, y, z])   
+
+            points.append([x, y, z])
         return cls(points)
-    
-    # Voir si on en fait pas une méthode de classe... ?
-    def perpendicular_vector(self, v):
-        if v[1] == 0 and v[2] == 0:
-            if v[0] == 0:
-                raise ValueError('zero vector')
-            else:
-                return np.cross(v, [0, 1, 0])
-        return np.cross(v, [1, 0, 0])
-
-    def project_mire_to_plane(self, v):
-        """
-        Projette une mire 3D sur un plan et renvoie une Observation indexée.
-
-        Paramètres
-        ----------
-        mire : Mire
-            Mire contenant les points 3D.
-
-        v : array-like (3,)
-            Vecteur normal du plan.
-
-        Retour
-        ------
-        Observation
-            Points projetés en 2D avec les ids de la mire.
-            Sert de base pour générer ensuite des observations
-            bruitées / non indexées.
-        """
-
-        # Nombre de billes n
-        n = len(self.points)
-
-        # Origine O' du plan
-        #o_prime = (0,0,0)
-
-        # Calcul des coordonnées du plan
-        d = 0   # d gère la hauteur du plan
-        if (v[2] == 0):
-            if(v[0] == 0):
-                xx, zz = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
-                yy = 0
-            else:
-                # Si c = 0, on a juste ax + by = 0 <=> ax = -by <=> x = -by/a
-                yy = np.meshgrid(np.linspace(0,1,20))
-                xx = -v[1]*yy/v[0]
-        else:
-            xx, yy = np.meshgrid(np.linspace(0,1,20), np.linspace(0,1,20))
-            zz = (-v[0] * xx - v[1] * yy - d) * 1. / v[2] # z = (-ax -by)/c
-
-        # Calcul de deux vecteurs directeurs (u1, u2) du plan, orthogonaux à v
-        u1 = self.perpendicular_vector(v) 
-        u2 = np.cross(v, u1)   # u2 est orthogonal à la fois à v et à u1
-        
-        observ = []
-
-        for pt in self.points:
-            # Vecteur u des coordonnées de la bille
-            u = (pt[0], pt[1], pt[2])
-
-             # Vecteur u_proj projeté dans le plan 2D de vecteur normal v 
-            u_prime = np.dot(u,v)/np.dot(v,v)*v
-            w = u - u_prime
-            observ.append((np.dot(u1, w), np.dot(u2,w)))
-        
-        return Observation(observ, v, self.ids)
