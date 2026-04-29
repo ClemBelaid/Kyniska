@@ -1,7 +1,7 @@
 from .mire import Mire
 import numpy as np
 
-def generer_cone_tronque(nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+def generer_cone_tronque(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
     points = []
     for _ in range(nb_billes):
 
@@ -15,9 +15,9 @@ def generer_cone_tronque(nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur
         y = r * np.sin(theta)
 
         points.append([x, y, z])
-    return Mire(points)
+    return Mire(points, ids)
 
-def generer_cone_tronque_creux(nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+def generer_cone_tronque_creux(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
     points = []
     for _ in range(nb_billes):
         z = np.random.uniform(0, hauteur)
@@ -31,7 +31,7 @@ def generer_cone_tronque_creux(nb_billes, rayon_base=100.0, rayon_sommet=50.0, h
 
     return Mire(points)
 
-def generer_cube(nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
+def generer_cube(nb_billes, ids=None, largeur=200.0, longueur=200.0, epaisseur=30.0):
     points = []
 
     for _ in range(nb_billes):

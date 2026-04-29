@@ -33,4 +33,4 @@ def project_mire_to_plane(mire, v):
         w = u - u_prime
         observ.append((np.dot(u1, w), np.dot(u2,w)))
 
-    return Observation(observ, v, mire.ids)
+    return Observation(observ, ids=mire.ids, v=v)
