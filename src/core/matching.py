@@ -45,53 +45,50 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
     return nb_4uplets, liste_4uplets
 
 
-def identification(m, p1, p2, p3, epsilon = 0.01):
+def correspondance_projection_mire(m, p, l, epsilon):
     """
-    Entrée : une mire m, trois projections différentes p1, p2, p3
-    Sortie : Identification des points 2D de chaque projection en les associant à leurs IDs
+    Entrée : Une mire m, une projection p, une liste l des birapports de la mire, un critère de tolérance epsilon
+    Sortie : Une liste des quadruplets de points alignés *potentiellement identifiés* dans p
     """
-    listeBR = []
+    # On calcule les quadruplets de points alignés dans chaque projection
+    # Enregistrés sous leurs coordonnées (x,y)
+    p_alignes = detecter_quadruple_alignes_observation(p, 4)[1]
 
+    p_ids = []
+    p_coords = []
+
+    for q in p_alignes:
+        (a,b,c,d) = q
+        n = calculBirapport(a,b,c,d)
+        # Si le birapport fait partie des birapports connus de la mire (à epsilon près)
+        for i in range(len(l)):
+            if abs(n - l[i]) <= epsilon :
+                # On enregistre ce quadruplet : leurs IDs d'abord puis leurs coordonnées dans p1
+                p_ids.append(m.alignes[i])
+                p_coords.append((a,b,c,d))
+    
+    return p_ids, p_coords
+
+
+# Si on part du principe que tous les points de la mire appartiennent à un quadruplet de points alignés
+def annoter_birapport(m, p1, p2, p3, epsilon = 0.01):
+    """
+    Entrée : Une mire m, trois projections différentes p1, p2, p3 et un critère de tolérance epsilon
+    Sortie : Pour chaque projection, une liste des quadruplets alignés identifiés par leur birapport,
+    et une liste des coordonnées 2D correspondantes dans la projection
+    """
+
+    # Calcul des birapports de la mire
+    listeBR = []
     for q in m.alignes:
         (ida,idb,idc,idd) = q
         (a,b,c,d) = (m.points[ida], m.points[idb], m.points[idc], m.points[idd])
         listeBR.append(calculBirapport(a,b,c,d))
 
-    print("listeBR = ", listeBR)
+    (p1_ids, p1_coords) = correspondance_projection_mire(m, p1, listeBR, epsilon)
+    (p2_ids, p2_coords) = correspondance_projection_mire(m, p2, listeBR, epsilon)
+    (p3_ids, p3_coords) = correspondance_projection_mire(m, p3, listeBR, epsilon)
 
-    p1_alignes = detecter_quadruple_alignes_observation(p1, 4)[1]
-    p2_alignes = detecter_quadruple_alignes_observation(p2, 4)[1]
-    p3_alignes = detecter_quadruple_alignes_observation(p3, 4)[1]
+    # Ajouter une façon de ne garder que ceux qui sont à la fois dans p1_ids, p2_ids et p3_ids (intersection) !!
 
-    p_ids_candidats = []
-    p_ids1 = []
-    p_ids2 = []
-
-    for q in p1_alignes:
-        (a,b,c,d) = q
-        print("p1")
-        print(a,b,c,d)
-        n = calculBirapport(a,b,c,d)
-        print("birapport = ", n)
-        for i in range(len(listeBR)):
-            if abs(n - listeBR[i]) <= epsilon :
-                candidat = m.alignes[i]
-                print("candidat =", candidat)
-                p_ids_candidats.append(candidat)
-
-    for q in p2_alignes:
-        (a,b,c,d) = q
-        print("p2")
-        print(a,b,c,d)
-        n = calculBirapport(a,b,c,d)
-        print("birapport = ", n)
-        for i in range(len(listeBR)):
-            if abs(n - listeBR[i]) <= epsilon :
-                candidat = m.alignes[i]
-                print("candidat =", candidat)
-                if np.any(np.all(candidat == p_ids_candidats, axis=1)):
-                    p_ids.append(candidat)
-                else:
-                    p_ids_candidats.append(candidat)
-
-    return p_ids
+    return ((p1_ids, p2_coords), (p2_ids, p2_coords), (p3_ids, p3_coords))
