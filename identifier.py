@@ -1,5 +1,6 @@
-from core import Mire
-from core.matching import identification
+from src.core import Mire
+from src.core import Observation
+from src.core.matching import identification
 import sys
 
 if __name__ == "__main__":
