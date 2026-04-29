@@ -13,6 +13,7 @@ class Observation:
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
         self.v = v
+        self.alignes = None
 
     def __len__(self):
         """
@@ -46,7 +47,8 @@ class Observation:
         ax.set_aspect("equal")
         plt.xlabel("x")
         plt.ylabel("y")
-        plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
+        if self.v :
+            plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
 
         return ax
 
@@ -59,7 +61,7 @@ class Observation:
             self.ids.copy(),
             self.v
         )
-        obj.alignes = self.alignes
+        obj.alignes = None if self.alignes is None else self.alignes.copy()
         return obj
 
     def save_json(self, filename):

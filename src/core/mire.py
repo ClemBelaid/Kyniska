@@ -59,7 +59,7 @@ class Mire:
         Renvoie une copie indépendante.
         """
         res = Mire(self.points.copy(), self.ids.copy())
-        res.alignes = self.alignes.copy()
+        res.alignes = None if self.alignes is None else self.alignes.copy()
         return res
 
     def save_json(self, filename):
