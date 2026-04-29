@@ -58,7 +58,7 @@ class Observation:
         """
         obj = Observation(
             self.points.copy(),
-            self.ids.copy(),
+            None if self.ids is None else self.ids.copy(),
             self.v
         )
         obj.alignes = None if self.alignes is None else self.alignes.copy()
