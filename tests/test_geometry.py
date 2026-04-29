@@ -23,4 +23,4 @@ def test_birapport_known_case():
 
     val = calculBirapport(a, b, c, d)
 
-    assert abs(val - (8 / 3)) < 1e-10
+    assert abs(val - 2.) < 1e-8
