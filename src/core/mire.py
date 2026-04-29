@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 class Mire:
-    def __init__(self, points, ids=None, alignes=None):
+    def __init__(self, points, ids=None):
         """
         Crée une mire 3D.
 
@@ -18,7 +18,7 @@ class Mire:
         else:
             self.ids = np.array(ids)
 
-        self.alignes = np.array(alignes)
+        self.alignes = None
 
     def __len__(self):
         """
@@ -58,7 +58,9 @@ class Mire:
         """
         Renvoie une copie indépendante.
         """
-        return Mire(self.points.copy(), self.ids.copy())
+        res = Mire(self.points.copy(), self.ids.copy())
+        res.alignes = self.alignes.copy()
+        return res
 
     def save_json(self, filename):
         """
@@ -108,4 +110,6 @@ class Mire:
         for q in data["alignes"]:
             alignes.append([q["a"], q["b"], q["c"], q["d"]])
 
-        return cls(points, alignes, ids)
+        obj = cls(points, ids)
+        obj.alignes = alignes
+        return obj
