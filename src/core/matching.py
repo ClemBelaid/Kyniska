@@ -48,7 +48,7 @@ def detecter_quadruple_alignes_observation(obs: Observation, eps=0):
 def correspondance_projection_mire(m, p, l, epsilon):
     """
     Entrée : Une mire m, une projection p, une liste l des birapports de la mire, un critère de tolérance epsilon
-    Sortie : Une liste des quadruplets de points alignés *potentiellement identifiés* dans p1
+    Sortie : Une liste des quadruplets de points alignés *potentiellement identifiés* dans p
     """
     # On calcule les quadruplets de points alignés dans chaque projection
     # Enregistrés sous leurs coordonnées (x,y)
@@ -69,10 +69,13 @@ def correspondance_projection_mire(m, p, l, epsilon):
     
     return p_ids, p_coords
 
-def identification(m, p1, p2, p3, epsilon = 0.01):
+
+# Si on part du principe que tous les points de la mire appartiennent à un quadruplet de points alignés
+def annoter_birapport(m, p1, p2, p3, epsilon = 0.01):
     """
-    Entrée : une mire m, trois projections différentes p1, p2, p3
-    Sortie : Identification des points 2D de chaque projection en les associant à leurs IDs
+    Entrée : Une mire m, trois projections différentes p1, p2, p3 et un critère de tolérance epsilon
+    Sortie : Pour chaque projection, une liste des quadruplets alignés identifiés par leur birapport,
+    et une liste des coordonnées 2D correspondantes dans la projection
     """
 
     # Calcul des birapports de la mire
@@ -86,10 +89,6 @@ def identification(m, p1, p2, p3, epsilon = 0.01):
     (p2_ids, p2_coords) = correspondance_projection_mire(m, p2, listeBR, epsilon)
     (p3_ids, p3_coords) = correspondance_projection_mire(m, p3, listeBR, epsilon)
 
-    reels = []
-    # On ne garde que ceux qui sont à la fois dans p1_ids et p2_ids
-    for candidat in p1_ids:
-        if np.any(np.all(candidat == p_ids, axis=1)):
-            reels.append(candidat)
+    # Ajouter une façon de ne garder que ceux qui sont à la fois dans p1_ids, p2_ids et p3_ids (intersection) !!
 
-    return 
+    return ((p1_ids, p2_coords), (p2_ids, p2_coords), (p3_ids, p3_coords))
