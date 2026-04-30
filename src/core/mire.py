@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 class Mire:
-    def __init__(self, points, ids=None):
+    def __init__(self, points, alignes = None, ids=None):
         """
         Crée une mire 3D.
 
@@ -12,13 +12,12 @@ class Mire:
         ids : identifiants des billes (optionnel)
         """
         self.points = np.array(points, dtype=float)
+        self.alignes = alignes
 
         if ids is None:
             self.ids = np.arange(len(points))
         else:
             self.ids = np.array(ids)
-
-        self.alignes = None
 
     def __len__(self):
         """
@@ -80,13 +79,14 @@ class Mire:
                 "z": float(p[2])
             })
 
-        for q in self.alignes:
-            data["alignes"].append({
-                "a": int(q[0]),
-                "b": int(q[1]),
-                "c": int(q[2]),
-                "d": int(q[3])
-            })
+        if self.alignes != None :
+            for q in self.alignes:
+                data["alignes"].append({
+                    "a": int(q[0]),
+                    "b": int(q[1]),
+                    "c": int(q[2]),
+                    "d": int(q[3])
+                })
 
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
