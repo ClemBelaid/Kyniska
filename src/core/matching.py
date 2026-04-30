@@ -54,8 +54,7 @@ def correspondance_projection_mire(m, p, l, epsilon):
     # Enregistrés sous leurs coordonnées (x,y)
     p_alignes = detecter_quadruple_alignes_observation(p, 4)[1]
 
-    p_ids = []
-    p_coords = []
+    #p_ids = []
 
     for q in p_alignes:
         (a,b,c,d) = q
@@ -64,10 +63,7 @@ def correspondance_projection_mire(m, p, l, epsilon):
         for i in range(len(l)):
             if abs(n - l[i]) <= epsilon :
                 # On enregistre ce quadruplet : leurs IDs d'abord puis leurs coordonnées dans p1
-                p_ids.append(m.alignes[i])
-                p_coords.append((a,b,c,d))
-    
-    return p_ids, p_coords
+                p.ids.append(m.alignes[i])
 
 
 # Si on part du principe que tous les points de la mire appartiennent à un quadruplet de points alignés
@@ -85,10 +81,8 @@ def annoter_birapport(m, p1, p2, p3, epsilon = 0.01):
         (a,b,c,d) = (m.points[ida], m.points[idb], m.points[idc], m.points[idd])
         listeBR.append(calculBirapport(a,b,c,d))
 
-    (p1_ids, p1_coords) = correspondance_projection_mire(m, p1, listeBR, epsilon)
-    (p2_ids, p2_coords) = correspondance_projection_mire(m, p2, listeBR, epsilon)
-    (p3_ids, p3_coords) = correspondance_projection_mire(m, p3, listeBR, epsilon)
+    correspondance_projection_mire(m, p1, listeBR, epsilon)
+    correspondance_projection_mire(m, p2, listeBR, epsilon)
+    correspondance_projection_mire(m, p3, listeBR, epsilon)
 
     # Ajouter une façon de ne garder que ceux qui sont à la fois dans p1_ids, p2_ids et p3_ids (intersection) !!
-
-    return ((p1_ids, p2_coords), (p2_ids, p2_coords), (p3_ids, p3_coords))
