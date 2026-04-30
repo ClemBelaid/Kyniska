@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 class Observation:
-    def __init__(self, points2d, ids=None, v=None):
+    def __init__(self, points2d, alignes = None, ids=None, v=None):
         """
         Crée une observation 2D.
 
@@ -13,7 +13,7 @@ class Observation:
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
         self.v = v
-        self.alignes = None
+        self.alignes = alignes
 
     def __len__(self):
         """
