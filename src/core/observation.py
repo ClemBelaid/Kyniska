@@ -47,8 +47,7 @@ class Observation:
         ax.set_aspect("equal")
         plt.xlabel("x")
         plt.ylabel("y")
-        if self.v :
-            plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
+        plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
 
         return ax
 
