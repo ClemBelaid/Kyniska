@@ -33,6 +33,13 @@ if __name__ == "__main__":
     v2 = np.array([0, 0.5, np.sqrt(3)/2])
     v3 = np.array([0, -0.5, np.sqrt(3)/2])
 
+
+    # En fait, il faudrait créer 6 projections :
+    # Une vérité-terrain (GT) + une projection "anonyme" pour chaque angle/vecteur de porjection
+    # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
+    # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
+    # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
+    
     p1 = proj.project_mire_to_plane(m, v1)
     p1.save_json("projection_0_degres")
     p2 = proj.project_mire_to_plane(m, v2)
