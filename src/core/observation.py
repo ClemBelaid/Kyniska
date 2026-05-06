@@ -2,17 +2,18 @@ import json
 import numpy as np
 
 class Observation:
-    def __init__(self, points2d, v, ids=None, alignes=None):
+    def __init__(self, points2d, alignes = None, ids=None, v=None):
         """
         Crée une observation 2D.
 
         points2d : points (n,2)
-        v : vecteur normal au plan
         ids : optionnel
+        v : vecteur normal au plan
         """
         self.points = np.array(points2d, dtype=float)
         self.ids = ids
         self.v = v
+        self.alignes = alignes
 
     def __len__(self):
         """
@@ -50,22 +51,17 @@ class Observation:
 
         return ax
 
-        ax.scatter(
-            self.points[:,0],
-            self.points[:,1],
-            self.points[:,2]
-        )
-    
-        return ax
-
     def copy(self):
         """
         Renvoie une copie indépendante.
         """
-        return Observation(
+        obj = Observation(
             self.points.copy(),
-            self.ids.copy()
+            None if self.ids is None else self.ids.copy(),
+            self.v
         )
+        obj.alignes = None if self.alignes is None else self.alignes.copy()
+        return obj
 
     def save_json(self, filename):
         """
@@ -102,7 +98,7 @@ class Observation:
             ids.append(pt["id"])
             points.append([pt["u"], pt["v"]])
 
-        return cls(points2d=points, ids=ids)
+        return cls(points, ids)
 
     def ajouterBruit(self, posRatio, negRatio):
         """

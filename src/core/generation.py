@@ -1,4 +1,7 @@
-def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+from .mire import Mire
+import numpy as np
+
+def generer_cone_tronque(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
     points = []
     for _ in range(nb_billes):
 
@@ -12,10 +15,9 @@ def generer_cone_tronque(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, ha
         y = r * np.sin(theta)
 
         points.append([x, y, z])
-    return cls(points)
+    return Mire(points, ids)
 
-@classmethod
-def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
+def generer_cone_tronque_creux(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
     points = []
     for _ in range(nb_billes):
         z = np.random.uniform(0, hauteur)
@@ -27,10 +29,9 @@ def generer_cone_tronque_creux(cls, nb_billes, rayon_base=100.0, rayon_sommet=50
 
         points.append([x, y, z])
 
-    return cls(points)
+    return Mire(points)
 
-@classmethod
-def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
+def generer_cube(nb_billes, ids=None, largeur=200.0, longueur=200.0, epaisseur=30.0):
     points = []
 
     for _ in range(nb_billes):
@@ -39,4 +40,4 @@ def generer_cube(cls, nb_billes, largeur=200.0, longueur=200.0, epaisseur=30.0):
         z = np.random.uniform(0, epaisseur)
 
         points.append([x, y, z])
-    return cls(points)
+    return Mire(points)

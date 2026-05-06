@@ -1,5 +1,6 @@
-from core import Mire
-from core.matching import identification
+from src.core import Mire
+import src.core.observation as obs
+import src.core.matching as match 
 import sys
 
 if __name__ == "__main__":
@@ -10,8 +11,15 @@ if __name__ == "__main__":
               " - <nb projections> : int\n"
               " - <proj 1> : JSON \n"
               " - <proj 2> : JSON \n"
+              " - <proj 3> : JSON \n"
               "    ...\n",
             file=sys.stderr)
         sys.exit(1)
 
-    print("TODO : identifier les billes des projections")
+    m = Mire.load_json(sys.argv[1])
+    nb_proj = sys.argv[2]
+    p1 = sys.argv[3]
+    p2 = sys.argv[4]
+    p3 = sys.argv[5]
+
+    match.annoter_birapport(m, p1, p2, p3)
