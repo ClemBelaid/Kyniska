@@ -1,35 +1,53 @@
 import json
 import numpy as np
 
-class ObservationDict:
-    def __init__(self, data_dict=None, v=None):
+class Observation:
+    def __init__(self, points2d, ids=None, alignes = None, v=None):
         """
-        Crée une observation 2D utilisant un dictionnaire pour le stockage.
-        
-        data_dict : dictionnaire {id: [u, v]}
-        v : vecteur normal au plan de projection
+        Crée une observation 2D en utilisant un dictionnaire pour le stockage.
+
+        points2d : tableau de points 2D
+        ids : optionnel
+        alignes = tableau de quadruplets alignés (optionnel)
+        v : vecteur normal au plan (optionnel)
         """
-        # Stockage unique : {id: [u, v]}
-        self.data = data_dict if data_dict else {}
-        self.v = v
+        points = np.asarray(points2d, dtype=float)
+
+        if points.ndim != 2 or points.shape[1] != 2:
+            raise ValueError("Les points doivent être des couples (x,y)")
+
+        n = len(points)
+
+        if ids is None:
+            ids = np.arange(n)
+        else:
+            ids = np.asarray(ids)
+            if len(ids) != n:
+                raise ValueError("ids et points doivent avoir la même longueur")
+
+        # Construction du dictionnaire
+        self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
+
+        self.alignes = alignes if alignes else []
+        self.v = v 
 
     @property
     def points(self):
         """Retourne un array numpy (n,2) pour l'affichage et les calculs."""
-        if not self.data:
+        if not self.pts:
             return np.array([])
-        return np.array(list(self.data.values()), dtype=float)
+        return np.array(list(self.pts.values()), dtype=float)
 
     @property
     def ids(self):
         """Retourne la liste des IDs (clés du dictionnaire)."""
-        return list(self.data.keys())
+        return list(self.pts.keys())
 
     def __len__(self):
-        return len(self.data)
+        return len(self.pts)
 
     def __str__(self):
-        return f"ObservationDict with {len(self.data)} points"
+        return f"Observation with {len} points"
 
     def draw(self, ax=None):
         """Affiche l'observation avec matplotlib."""
@@ -52,21 +70,28 @@ class ObservationDict:
 
     def copy(self):
         """Renvoie une copie indépendante."""
-        new_data = {k: list(v) for k, v in self.data.items()}
-        return ObservationDict(new_data, self.v)
+        return Observation(self.points.copy(), ids=self.ids.copy(), alignes=[list(q) for q in self.alignes], v=self.v)
+
 
     def save_json(self, filename):
         """Sauvegarde l'observation en JSON."""
         data_to_save = {
             "name": filename,
-            "points": []
+            "points": [],
+            "vecteur": self.v
         }
 
-        for pid, p in self.data.items():
+        for id, pt in self.pts.items():
             data_to_save["points"].append({
-                "id": int(pid),
-                "u": float(p[0]),
-                "v": float(p[1])
+                "id": int(id),
+                "x": float(pt[0]),
+                "y": float(pt[1])
+            })
+
+        for q in self.alignes:
+            data_to_save["alignes"].append({
+                "a": int(q[0]), "b": int(q[1]), 
+                "c": int(q[2]), "d": int(q[3])
             })
 
         with open(filename, "w") as f:
@@ -78,12 +103,24 @@ class ObservationDict:
         with open(filename, "r") as f:
             content = json.load(f)
 
-        o_dict = {
-            int(pt["id"]): [pt["u"], pt["v"]] 
-            for pt in content["points"]
-        }
+        ids = []
+        points = []
 
-        return cls(o_dict)
+        # Reconstruction des tableaux ids et points
+        for pt in content["points"]:
+            ids.append(pt["id"])
+            points.append([pt["x"], pt["y"]])
+
+        # Reconstruction du tableau  de quadruplets alignés
+        alignes = [
+            [q["a"], q["b"], q["c"], q["d"]] 
+            for q in content.get("alignes", [])
+        ]
+
+        # Récupération du vecteur normal v
+        v = content["v"]
+
+        return cls(points, ids, alignes, v)
 
     def ajouterBruit(self, posRatio, negRatio):
         """
@@ -98,7 +135,7 @@ class ObservationDict:
             # Choix aléatoire des IDs à supprimer
             ids_to_remove = np.random.choice(current_ids, min(nb_to_remove, len(current_ids)), replace=False)
             for rid in ids_to_remove:
-                del self.data[rid]
+                del self.pts[rid]
 
         # 2. Faux Positifs (Ajout de points "fantômisés")
         nb_to_add = int(len(self) * posRatio)
@@ -111,4 +148,4 @@ class ObservationDict:
             #Génération de coordonnées 2D aléatoires (échelle arbitraire 0-3)
             new_pts = np.random.rand(nb_to_add, 2) * 3
             for fid, pt in zip(fake_ids, new_pts):
-                self.data[fid] = pt.tolist()
+                self.pts[fid] = pt.tolist()
