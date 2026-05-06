@@ -2,132 +2,150 @@ import json
 import numpy as np
 
 class Observation:
-    def __init__(self, points2d, alignes = None, ids=None, v=None):
+    def __init__(self, points2d, ids=None, alignes = None, v=None):
         """
-        Crée une observation 2D.
+        Crée une observation 2D en utilisant un dictionnaire pour le stockage.
 
-        points2d : points (n,2)
+        points2d : tableau de points 2D
         ids : optionnel
-        v : vecteur normal au plan
+        alignes = tableau de quadruplets alignés (optionnel)
+        v : vecteur normal au plan (optionnel)
         """
-        self.points = np.array(points2d, dtype=float)
-        self.ids = ids
-        self.v = v
-        self.alignes = alignes
+        points = np.asarray(points2d, dtype=float)
+
+        if points.ndim != 2 or points.shape[1] != 2:
+            raise ValueError("Les points doivent être des couples (x,y)")
+
+        n = len(points)
+
+        if ids is None:
+            ids = np.arange(n)
+        else:
+            ids = np.asarray(ids)
+            if len(ids) != n:
+                raise ValueError("ids et points doivent avoir la même longueur")
+
+        # Construction du dictionnaire
+        self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
+
+        self.alignes = alignes if alignes else []
+        self.v = v 
+
+    @property
+    def points(self):
+        """Retourne un array numpy (n,2) pour l'affichage et les calculs."""
+        if not self.pts:
+            return np.array([])
+        return np.array(list(self.pts.values()), dtype=float)
+
+    @property
+    def ids(self):
+        """Retourne la liste des IDs (clés du dictionnaire)."""
+        return list(self.pts.keys())
 
     def __len__(self):
-        """
-        Renvoie le nombre de points observés.
-        """
-        return len(self.points)
+        return len(self.pts)
 
     def __str__(self):
-        return f"Mire with {len(self.points)} points"
-    
+        return f"Observation with {len} points"
+
     def draw(self, ax=None):
-        """
-        Affiche la mire / observation avec matplotlib.
-    
-        ax : axe matplotlib optionnel.
-        Si None, un axe est créé.
-    
-        Penser à appeler plt.show() après utilisation
-        pour afficher la fenêtre.
-        """
+        """Affiche l'observation avec matplotlib."""
         import matplotlib.pyplot as plt
     
         if ax is None:
             fig, ax = plt.subplots()
     
-        ax.scatter(
-            self.points[:,0],
-            self.points[:,1]
-        )
+        pts = self.points
+        if pts.size > 0:
+            ax.scatter(pts[:,0], pts[:,1])
     
         ax.set_aspect("equal")
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.title("Projection selon le plan normal au vecteur : (" + str(self.v[0]) + "," + str(self.v[1]) + "," + str(self.v[2]) + ")")
+        ax.set_xlabel("u")
+        ax.set_ylabel("v")
+        if self.v is not None:
+            ax.set_title(f"Projection (Plan normal: {self.v})")
 
         return ax
 
     def copy(self):
-        """
-        Renvoie une copie indépendante.
-        """
-        obj = Observation(
-            self.points.copy(),
-            None if self.ids is None else self.ids.copy(),
-            self.v
-        )
-        obj.alignes = None if self.alignes is None else self.alignes.copy()
-        return obj
+        """Renvoie une copie indépendante."""
+        return Observation(self.points.copy(), ids=self.ids.copy(), alignes=[list(q) for q in self.alignes], v=self.v)
+
 
     def save_json(self, filename):
-        """
-        Sauvegarde l'observation en JSON.
-        """
-        data = {
+        """Sauvegarde l'observation en JSON."""
+        data_to_save = {
             "name": filename,
-            "points": []
+            "points": [],
+            "vecteur": self.v
         }
 
-        for pid, p in zip(self.ids, self.points):
-            data["points"].append({
-                "id": int(pid),
-                "u": float(p[0]),
-                "v": float(p[1])
+        for id, pt in self.pts.items():
+            data_to_save["points"].append({
+                "id": int(id),
+                "x": float(pt[0]),
+                "y": float(pt[1])
+            })
+
+        for q in self.alignes:
+            data_to_save["alignes"].append({
+                "a": int(q[0]), "b": int(q[1]), 
+                "c": int(q[2]), "d": int(q[3])
             })
 
         with open(filename, "w") as f:
-            json.dump(data, f, indent=4)
+            json.dump(data_to_save, f, indent=4)
 
     @classmethod
     def load_json(cls, filename):
-        """
-        Charge une observation depuis un JSON.
-        """
+        """Charge une observation depuis un JSON."""
         with open(filename, "r") as f:
-            data = json.load(f)
+            content = json.load(f)
 
-        points = []
         ids = []
-        alignes = []
+        points = []
 
-        for pt in data["points"]:
+        # Reconstruction des tableaux ids et points
+        for pt in content["points"]:
             ids.append(pt["id"])
-            points.append([pt["u"], pt["v"]])
+            points.append([pt["x"], pt["y"]])
 
-        return cls(points, ids)
+        # Reconstruction du tableau  de quadruplets alignés
+        alignes = [
+            [q["a"], q["b"], q["c"], q["d"]] 
+            for q in content.get("alignes", [])
+        ]
+
+        # Récupération du vecteur normal v
+        v = content["v"]
+
+        return cls(points, ids, alignes, v)
 
     def ajouterBruit(self, posRatio, negRatio):
         """
-        Crée une observation 2D bruitée.
-        points2d : points (n,2)
-        pos : float (entre 0 et 1) du pourcentage (?) de bruit positif
-            0 = aucun bruit positif, 1 = autant de bruit positif que de vraies billes (par ex ?)
-        neg : float (entre 0 et 1) du pourcentage (?) de bruit négatif
-            0 = aucun bruit négatif, 1 = image entièrement vidée ?
-        ids : optionnel
+        Modifie l'observation en ajoutant/supprimant des points (bruit).
         """
-        observ_copy = self.copy()
         np.random.seed(42)
+        current_ids = self.ids
 
-        # On calcul le nombre de billes à supprimer (faux négatifs)
-        # Suppression aléatoire -> à voir, cela peut être modifié également ?
-        nbFauxNeg = len(self)*negRatio
-        for i in range(nbFauxNeg):
-            k = np.random.randint(0, len(self))
-            # Je pense qu'on ne peut pas générer directement nbFauxNeg nombres aléatoires dans [0, n-1]
-            # Car il y aurait un risque de doublons et donc pas le bon nombre de billes supprimées
-            np.delete (self.points, k)
+        # 1. Faux Négatifs (Suppression de billes existantes)
+        nb_to_remove = int(len(self) * negRatio)
+        if nb_to_remove > 0 and current_ids:
+            # Choix aléatoire des IDs à supprimer
+            ids_to_remove = np.random.choice(current_ids, min(nb_to_remove, len(current_ids)), replace=False)
+            for rid in ids_to_remove:
+                del self.pts[rid]
 
-        # Genère nbFauxPos points de dimension 3 aléatoires
-        nbFauxPos = len(self)*posRatio
-        newPoints = np.random.rand(nbFauxPos, 3)
-
-        # Tailles s aléatoires ?
-        #s = np.random.rand(nbFauxPos)*60 + 30
-
-        self.points.append(newPoints)
-
+        # 2. Faux Positifs (Ajout de points "fantômisés")
+        nb_to_add = int(len(self) * posRatio)
+        if nb_to_add > 0:
+            # On génère des IDs négatifs pour les distinguer des vraies billes
+            #comme suggéré pour l'identification des bruits...
+            start_id = min(self.ids) if self.ids else 0
+            fake_ids = range(start_id - nb_to_add, start_id)
+            
+            #Génération de coordonnées 2D aléatoires (échelle arbitraire 0-3)
+            new_pts = np.random.rand(nb_to_add, 2) * 3
+            for fid, pt in zip(fake_ids, new_pts):
+                self.pts[fid] = pt.tolist()
