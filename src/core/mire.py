@@ -25,6 +25,7 @@ class Mire:
 
         # Construction du dictionnaire
         self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
+        print(self.pts)
 
         self.alignes = alignes if alignes else []
 
@@ -119,6 +120,6 @@ class Mire:
         Entrée : Un triplet de coordonnées (x,y,z).
         Sortie : L'identifiant du point ayant ces coordonnées.
         """
-        for id, pt in self.pts.iteritems():
-            if pt == coords:
+        for id, pt in self.pts.items():
+            if (pt == coords).all():
                 return id
