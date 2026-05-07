@@ -40,9 +40,12 @@ if __name__ == "__main__":
     # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
     
-    p1 = proj.project_mire_to_plane(m, v1)
-    p1.save_json("projection_0_degres")
-    p2 = proj.project_mire_to_plane(m, v2)
-    p2.save_json("projection_30_degres")
-    p3 = proj.project_mire_to_plane(m, v3)
-    p3.save_json("projection_moins_30_degres")
+    (p1,p1_fake) = proj.project_mire_to_plane(m, v1)
+    p1.save_json("proj_0_deg")
+    p1_fake.save_json("proj_0_deg_pour_ident")
+    (p2,p2_fake) = proj.project_mire_to_plane(m, v2)
+    p1.save_json("proj_30_deg")
+    p2_fake.save_json("proj_30_deg_pour_ident")
+    (p3,p3_fake) = proj.project_mire_to_plane(m, v3)
+    p3.save_json("proj_moins_30_deg")
+    p3_fake.save_json("proj_moins_30_deg_pour_ident")

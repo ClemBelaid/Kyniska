@@ -1,6 +1,6 @@
 import numpy as np
 from .geometry import perpendicular_vector
-from .observation import Observation
+from .observation_dict import ObservationDict
 
 def project_mire_to_plane(mire, v):
     """
@@ -24,13 +24,17 @@ def project_mire_to_plane(mire, v):
     u1 = perpendicular_vector(v)
     u2 = np.cross(v, u1)
 
-    observ = []
+    observ = {}
+    observ_anonym={}
 
-    for pt in mire.points:
-        u = (pt[0], pt[1], pt[2])
+    for i, (pid, pt) in enumerate(mire.data.items()):
+        u = np.array(pt)
 
         u_prime = np.dot(u,v)/np.dot(v,v)*v
         w = u - u_prime
-        observ.append((np.dot(u1, w), np.dot(u2,w)))
+        observ[pid]=(np.dot(u1, w), np.dot(u2,w))
+        fake_id = -(i+1)
+        observ_anonym[fake_id]=(np.dot(u1, w), np.dot(u2,w))
+      
 
-    return Observation(observ, ids=mire.ids, v=v)
+    return (ObservationDict(observ,v=v),ObservationDict(observ_anonym,v=v))
