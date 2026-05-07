@@ -113,3 +113,12 @@ class Mire:
         ]
 
         return cls(points, ids, alignes)
+
+    def getID(self, coords):
+        """
+        Entrée : Un triplet de coordonnées (x,y,z).
+        Sortie : L'identifiant du point ayant ces coordonnées.
+        """
+        for id, pt in self.pts.iteritems():
+            if pt == coords:
+                return id
