@@ -149,3 +149,12 @@ class Observation:
             new_pts = np.random.rand(nb_to_add, 2) * 3
             for fid, pt in zip(fake_ids, new_pts):
                 self.pts[fid] = pt.tolist()
+
+    def getID(self, coords):
+        """
+        Entrée : Un triplet de coordonnées (x,y,z).
+        Sortie : L'identifiant du point ayant ces coordonnées.
+        """
+        for id, pt in self.pts.items():
+            if (pt == coords).all():
+                return id
