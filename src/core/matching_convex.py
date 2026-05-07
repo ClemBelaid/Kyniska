@@ -33,37 +33,68 @@ def enveloppe_convexe_2D(o):
         ids.append(pid)
     return ids
 
-# A retravailler
-def estimate_camera(match):
-    obj_pts = np.array([points_3d[i] for i, _ in match], dtype=np.float32)
-    img_pts = np.array([points_2d[j] for _, j in match], dtype=np.float32)
+def cyclic_permutations(lst):
+    """
+    Entrée : Une liste de points 3D ou 2D
+    Sortie : La liste de toutes les permutations cycliques de cet ensemble de points
+    """
+    n = len(lst)
+    return [lst[i:] + lst[:i] for i in range(n)]
 
+def circuits_candidats(m, p):
+    """
+    Entrée : 
+    Sortie :
+    """
+    convHull3D = enveloppe_convexe_3D(m)
+    convHull2D = enveloppe_convexe_2D(p)
+    n = len(convHull2D)
+    candidats = []
+    # Pour chaque circuit de taille n dans l'enveloppe convexe 3D
+    for circuit in itertools.combinations(convHull3D, n):
+        # On calcule toutes les permutations cycliques de ce circuit et on les ajoute aux candidats
+        candidats.extend(cyclic_permutations(circuit))
+    return candidats
+    
+
+# A retravailler
+def estimate_camera(pts3D, pts2D):
+    """
+    Entrée :
+    Sortie :
+    """
     # Dummy camera intrinsics (replace with real ones)
     K = np.eye(3)
-
-    success, rvec, tvec = cv2.solvePnP(obj_pts, img_pts, K, None)
-
+    success, rvec, tvec = cv2.solvePnP(pts3D, pts2D, K, None)
     return success, rvec, tvec
 
-best_match = None
-best_error = float('inf')
-
 # A retravailler
-for match in candidates:
-    success, rvec, tvec = estimate_camera(match)
+def identification(m, p):
+    """
+    Entrée :
+    Sortie :
+    """
+    candidats = circuits_candidats(m, p)
+    points2D = p.points
+    best_match = None
+    best_error = float('inf')
+
+    # Le tableau candidats contient une liste des circuits de l'enveloppe convexe 3D correspondant *potentiellement*
+    # A l'enveloppe convexe 2D projetée
+    for match in candidats:
+        success, rvec, tvec = estimate_camera(match, points2D)
+        
+        if not success:
+            continue
+
+        # Reproject and compute error
+        projected, _ = cv2.projectPoints(match, rvec, tvec, np.eye(3), None)
+        projected = projected.squeeze()
+
+        error = np.linalg.norm(projected - points2D)
+
+        if error < best_error:
+            best_error = error
+            best_match = match
     
-    if not success:
-        continue
-
-    # Reproject and compute error
-    obj_pts = np.array([points_3d[i] for i, _ in match], dtype=np.float32)
-    img_pts = np.array([points_2d[j] for _, j in match], dtype=np.float32)
-
-    projected, _ = cv2.projectPoints(obj_pts, rvec, tvec, np.eye(3), None)
-    projected = projected.squeeze()
-
-    error = np.linalg.norm(projected - img_pts)
-
-    if error < best_error:
-        best_error = error
-        best_match = match
+    return best_match, best_error

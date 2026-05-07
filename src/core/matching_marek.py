@@ -22,7 +22,7 @@ def find_2points(m, p):
         axe = uv
         for ang in range(360):
             # Il faut écrire une fonction de rotation pour la mire prenant en paramètres un angle et un axe
-            m.rotation(ang, )
+            m.rotation(ang, axe)
             # On reprojette selon le vecteur v de la projection p
             # On vérifie tous les points (méthode des moindres carrés)
             # Il faut que la nouvelle projection p' et la projection p se "superposent" bien
