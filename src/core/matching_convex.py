@@ -4,7 +4,6 @@ from .observation import Observation
 import numpy as np
 import itertools
 
-
 def enveloppe_convexe_3D(m):
     """
     Entree : Une mire 3D 
@@ -13,7 +12,7 @@ def enveloppe_convexe_3D(m):
     convexHull = ConvexHull(m.points)
     ids = []
     for pt in convexHull.points :
-        pid = m.pts.keys()[m.pts.values().index(pt)]
+        pid = m.getID(pt)
         ids.append(pid)
     return ids
 

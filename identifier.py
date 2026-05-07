@@ -1,6 +1,5 @@
 from src.core import Mire
 import src.core.observation as obs
-import src.core.matching as match 
 import sys
 
 if __name__ == "__main__":
@@ -21,5 +20,3 @@ if __name__ == "__main__":
     p1 = sys.argv[3]
     p2 = sys.argv[4]
     p3 = sys.argv[5]
-
-    match.annoter_birapport(m, p1, p2, p3)
