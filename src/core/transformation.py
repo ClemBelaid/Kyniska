@@ -14,6 +14,7 @@ def calcul_matrice_rotation(v, angle):
     vNorm = np.linalg.norm(v)
     if(vNorm < 1e-6 ):
         print("Rotation direction cannot be a null (or even small) vector!")
+        # Attention : il faudrait plutôt écrire raise ValueError(...) ou quelque chose comme ça
         return None
 
     X = v[0] / vNorm
