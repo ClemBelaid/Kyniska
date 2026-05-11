@@ -11,7 +11,7 @@ def enveloppe_convexe_3D(m):
     Sortie : Les identifiants des points de l'enveloppe convexe 3D de cette mire
     """
     convexHull = ConvexHull(m.points)
-    # Les sommets (vertices) de convexHull sont renommées "dans l'ordre d'apparition"
+    # Les sommets (vertices) de convexHull sont renommés "dans l'ordre d'apparition"
     # Ils ne correspondent pas aux identifiants que l'on a nous-mêmes définis dans la mire
     ids = []
     for index in convexHull.vertices :
@@ -20,11 +20,20 @@ def enveloppe_convexe_3D(m):
         ids.append(pid)
     return ids
 
-def enveloppe_convexe_2D(p):
+def enveloppe_convexe_2D(o):
     """
+    Entrée : Une observation 2D
+    Sortie : Les identifiants des points de l'enveloppe convexe 2D de cette observation
     """
-    return ConvexHull(p.points).vertices
-
+    convexHull = ConvexHull(o.points)
+    # Les sommets (vertices) de convexHull sont renommés "dans l'ordre d'apparition"
+    # Ils ne correspondent pas aux identifiants que l'on a nous-mêmes définis dans la mire
+    ids = []
+    for index in convexHull.vertices :
+        pt = o.points[index]
+        pid = o.getID(pt)
+        ids.append(pid)
+    return ConvexHull(o.points).vertices
 
 
 def generer_circuits_candidats(mire_3d, obs_2d):
