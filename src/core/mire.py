@@ -1,13 +1,17 @@
 import json
 import numpy as np
+import cv2
+from .transformation import calcul_matrice_pose
 
 class Mire:
-    def __init__(self, points, alignes = None, ids = None):
+    def __init__(self, points, pose = None, alignes = None, ids = None):
         """
         Crée une mire 3D utilisant un dictionnaire pour le stockage.
         
-        data_dict : dictionnaire {id: [x, y, z]}
+        points : une liste des points 3D de la mire
+        pose : la matrice de pose de la mire par rapport au référentiel écran (monde)
         alignes : liste de quadruplets d'IDs (a, b, c, d) de points alignés
+        ids : liste des identifiants des points 3D
         """
         points = np.asarray(points, dtype=float)
 
@@ -25,7 +29,16 @@ class Mire:
 
         # Construction du dictionnaire
         self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
-        print(self.pts)
+
+        # Matrice de pose par défaut = l'identité (pour débuter)
+        if pose is None:
+            self.pose = np.identity(4)
+        else:
+            self.pose = pose
+
+        # Récupération des matrices de rotation et de translation à partir de la matrice de pose
+        self.rmatrix = self.pose[0:3, 0:3]
+        self.tmatrix = self.pose[0:3, 3]
 
         self.alignes = alignes if alignes else []
 
@@ -72,7 +85,11 @@ class Mire:
         data_to_save = {
             "name": filename,
             "points": [],
-            "alignes": []
+            "alignes": [],
+            "pose": {
+                "rotation" : self.rmatrix.tolist(),
+                "translation" : self.tmatrix.tolist()
+            }
         }
 
         # On itère directement sur le dictionnaire
@@ -113,7 +130,11 @@ class Mire:
             for q in content.get("alignes", [])
         ]
 
-        return cls(points, ids, alignes)
+        rmatrix = np.array(content["pose"]["rotation"])
+        tmatrix = np.array(content["pose"]["translation"])
+        pose = calcul_matrice_pose(rmatrix, tmatrix)
+
+        return cls(points, pose, alignes, ids)
 
     def getID(self, coords):
         """

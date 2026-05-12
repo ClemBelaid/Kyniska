@@ -1,5 +1,5 @@
-from .mire import Mire
-from .observation import Observation
+#from .mire import Mire
+#from .observation import Observation
 from math import *
 import cv2
 import numpy as np
@@ -51,3 +51,16 @@ def calcul_matrice_rotation(v, angle):
 
 
 def calcul_matrice_translation(v):
+    return 0
+
+def calcul_matrice_pose(rmat, tmat):
+    """
+    Entrée : Les matrices de rotation et de translation (sous forme de numpy array)
+    Sortie : La matrice de pose reconstruite
+    """
+    n = len(tmat) # 2 ou 3
+    pose = np.identity(n+1)
+    pose[0:n, 0:n] = rmat
+    pose[0:n, n] = tmat
+    
+    return pose
