@@ -1,4 +1,4 @@
-from .mire_dict import MireDict
+from .mire import Mire
 import numpy as np
 
 def generer_cone_tronque(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
@@ -16,7 +16,7 @@ def generer_cone_tronque(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.
 
         points.append([x, y, z])
     data_dict = {i: p for i, p in enumerate(points)}
-    return MireDict(data_dict, ids)
+    return Mire(data_dict, ids)
 
 def generer_cone_tronque_creux(nb_billes, ids=None, rayon_base=100.0, rayon_sommet=50.0, hauteur=30.0):
     points = []
@@ -31,7 +31,7 @@ def generer_cone_tronque_creux(nb_billes, ids=None, rayon_base=100.0, rayon_somm
         points.append([x, y, z])
 
     data_dict = {i: p for i, p in enumerate(points)}
-    return MireDict(data_dict, ids)
+    return Mire(data_dict, ids)
 
 def generer_cube(nb_billes, ids=None, largeur=200.0, longueur=200.0, epaisseur=30.0):
     points = []
@@ -43,4 +43,4 @@ def generer_cube(nb_billes, ids=None, largeur=200.0, longueur=200.0, epaisseur=3
 
         points.append([x, y, z])
     data_dict = {i: p for i, p in enumerate(points)}
-    return MireDict(data_dict, ids)
+    return Mire(data_dict, ids)
