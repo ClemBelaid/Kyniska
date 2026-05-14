@@ -1,6 +1,8 @@
 from src.core import Mire
-import src.core.observation as obs
+from src.core import Observation 
+import src.core.process as prc
 import sys
+import numpy as np 
 
 if __name__ == "__main__":
     argc = len(sys.argv)
@@ -15,8 +17,14 @@ if __name__ == "__main__":
             file=sys.stderr)
         sys.exit(1)
 
-    m = Mire.load_json(sys.argv[1])
-    nb_proj = sys.argv[2]
-    p1 = sys.argv[3]
-    p2 = sys.argv[4]
-    p3 = sys.argv[5]
+    mire = Mire.load_json(sys.argv[1])
+    #nb_proj = sys.argv[2]
+    obs_ref = Observation.load_json(sys.argv[2])
+    v2 = np.array([0, 0.5, np.sqrt(3)/2])
+    #p2 = sys.argv[4]
+    #p3 = sys.argv[5]
+    (mire_1,xm_rote,ym_rote,lst_xm)=prc.frst_process(mire,v2,obs_ref.points[0],obs_ref.points[1])
+    (mire_2,xm2_rote,ym2_rote,lst2_xm)=prc.scd_process(mire_1,v2,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
+    (mire_3,rms,agl)=prc.thd_process(mire_2,v2,obs_ref,xm2_rote,ym2_rote,36)
+    print(f"Angle : {np.degrees(agl):.2f}° avec un RMS de {rms:.4f}")
+
