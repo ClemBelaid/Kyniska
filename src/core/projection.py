@@ -29,7 +29,7 @@ def project_mire_to_plane(mire, v):
     observ = {}
     observ_anonym={}
 
-    for i, (pid, pt) in enumerate(mire.data.items()):
+    for i, (pid, pt) in enumerate(mire.pts.items()):
         u = np.array(pt)
 
         u_prime = np.dot(u,v)/np.dot(v,v)*v
@@ -37,9 +37,11 @@ def project_mire_to_plane(mire, v):
         observ[pid]=(np.dot(u1, w), np.dot(u2,w))
         fake_id = -(i+1)
         observ_anonym[fake_id]=(np.dot(u1, w), np.dot(u2,w))
+    points = list(observ.values())
+    ids = list(observ.keys())
       
 
-    return (Observation(observ,v=v),Observation(observ_anonym,v=v))
+    return Observation(points,ids,v=v) #Observation(observ_anonym,v=v)
 
 def project_pt_to_plane(pt , v):
     """
@@ -62,7 +64,7 @@ def project_pt_to_plane(pt , v):
     u = np.array(pt)
     u_prime = np.dot(u,v)/np.dot(v,v)*v
     w = u - u_prime
-    return (np.dot(u1, w), np.dot(u2,w))
+    return np.array([np.dot(u1, w), np.dot(u2,w)])
         
       
 

@@ -25,6 +25,8 @@ if __name__ == "__main__":
     #p3 = sys.argv[5]
     (mire_1,xm_rote,ym_rote,lst_xm)=prc.frst_process(mire,v2,obs_ref.points[0],obs_ref.points[1])
     (mire_2,xm2_rote,ym2_rote,lst2_xm)=prc.scd_process(mire_1,v2,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
-    (mire_3,rms,agl)=prc.thd_process(mire_2,v2,obs_ref,xm2_rote,ym2_rote,36)
+    (mire_3,rms,agl)=prc.thd_process(mire_2,v2,obs_ref,xm2_rote,ym2_rote,360)
     print(f"Angle : {np.degrees(agl):.2f}° avec un RMS de {rms:.4f}")
+    #print(xm_rote)
+    #print(ym_rote)
 

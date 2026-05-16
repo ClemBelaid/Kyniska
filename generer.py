@@ -4,6 +4,8 @@ import src.core.projection as proj
 import numpy as np
 import sys
 
+from transformation import calcul_matrice_rotation
+
 if __name__ == "__main__":
     argc = len(sys.argv)
     if argc == 1 :
@@ -41,14 +43,23 @@ if __name__ == "__main__":
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
     tht = np.pi/18 # angle de 10 degrés
     phi = tht # peu importe c'est pour tester 
-    mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
-    mat2 =  np.array([[np.cos(phi),-np.sin(tht),0,0],[np.sin(tht),np.cos(tht),0,0],[0,0,1,0],[0,0,0,1]])
+    #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
+    mat = calcul_matrice_rotation([0,0,1], tht)
+    mat1 = np.eye(4)
+    mat1[:3,:3] = mat
+    mat1[:3,3] = [30,0,0]
+    mat2 = np.array([
+    [np.cos(phi), -np.sin(phi), 0, 0],
+    [np.sin(phi),  np.cos(phi), 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]
+    ])
     lst = {}
     for id, x_mire in m.pts.items():
         x_mire_homo= np.array(x_mire + [1])
         x_mire_trs_homo1= mat1 @ x_mire_homo
-        x_mire_trs_homo2= mat2 @  x_mire_trs_homo1
-        lst[id] = (x_mire_trs_homo2[:3] / x_mire_trs_homo2[3]).tolist()
+        #x_mire_trs_homo2= mat2 @  x_mire_trs_homo1
+        lst[id] = (x_mire_trs_homo1[:3] / x_mire_trs_homo1[3]).tolist()
     points = list(lst.values())
     ids = list(lst.keys())
     mir=Mire(points, ids=ids, alignes=m.alignes)

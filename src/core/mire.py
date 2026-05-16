@@ -117,7 +117,7 @@ class Mire:
             for q in content.get("alignes", [])
         ]
 
-        return cls(points, ids, alignes)
+        return cls(points, alignes=alignes, ids=ids)
 
     def getID(self, coords):
         """
