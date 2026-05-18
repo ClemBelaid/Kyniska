@@ -80,9 +80,7 @@ class Observation:
             "points": [],
 <<<<<<< HEAD
             "vecteur": self.v.tolist()
-=======
-            "vecteur": self.v
->>>>>>> origin/main
+
         }
 
         for id, pt in self.pts.items():
@@ -122,11 +120,9 @@ class Observation:
         ]
 
         # Récupération du vecteur normal v
-<<<<<<< HEAD
+
         v = content["vecteur"]
-=======
-        v = content["v"]
->>>>>>> origin/main
+
 
         return cls(points, ids, alignes, v)
 
