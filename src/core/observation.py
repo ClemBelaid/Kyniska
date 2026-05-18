@@ -78,11 +78,7 @@ class Observation:
         data_to_save = {
             "name": filename,
             "points": [],
-<<<<<<< HEAD
             "vecteur": self.v.tolist()
-=======
-            "vecteur": self.v
->>>>>>> origin/main
         }
 
         for id, pt in self.pts.items():
@@ -122,11 +118,7 @@ class Observation:
         ]
 
         # Récupération du vecteur normal v
-<<<<<<< HEAD
-        v = content["vecteur"]
-=======
-        v = content["v"]
->>>>>>> origin/main
+        v = content.get("vecteur", content.get("v"))
 
         return cls(points, ids, alignes, v)
 
