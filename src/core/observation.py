@@ -78,7 +78,7 @@ class Observation:
         data_to_save = {
             "name": filename,
             "points": [],
-<<<<<<< HEAD
+            
             "vecteur": self.v.tolist()
 
         }
