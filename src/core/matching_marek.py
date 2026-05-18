@@ -1,5 +1,6 @@
 from .mire import Mire
 from .observation import Observation
+from .transformation import *
 import numpy as np
 import itertools
 
@@ -13,16 +14,17 @@ def find_2points(m, p):
     b = p.points[1]
     dist = np.linalg.norm(a, b)
 
-    for comb in itertools.combinations(m, 2):
+    for comb in itertools.combinations(m.points, 2):
         (u,v) = comb
-        hypothenuse = np.linalg.norm(u, v)
+        # Axe de rotation défini dans le référentiel mire
+        axe = v - u 
+        hypothenuse = np.linalg.norm(axe)
         if hypothenuse < dist:
             continue
-        # Il faut définir une rotation de la mire selon l'axe parallèle à uv
-        axe = uv
         for ang in range(360):
             # Il faut écrire une fonction de rotation pour la mire prenant en paramètres un angle et un axe
-            m.rotation(ang, axe)
+            mR = calcul_matrice_rotation(axe, ang)
+
             # On reprojette selon le vecteur v de la projection p
             # On vérifie tous les points (méthode des moindres carrés)
             # Il faut que la nouvelle projection p' et la projection p se "superposent" bien
