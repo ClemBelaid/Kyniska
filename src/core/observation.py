@@ -118,7 +118,9 @@ class Observation:
         ]
 
         # Récupération du vecteur normal v
+
         v = content.get("vecteur", content.get("v"))
+
 
         return cls(points, ids, alignes, v)
 

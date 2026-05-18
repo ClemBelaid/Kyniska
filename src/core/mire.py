@@ -18,6 +18,7 @@ class Mire:
             int(i): points[k].tolist()
             for k, i in enumerate(ids)
         }
+        self.ids = list(self.pts.keys())
 
         self.alignes = alignes if alignes else []
 
