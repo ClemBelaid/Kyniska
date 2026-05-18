@@ -4,7 +4,7 @@ import src.core.projection as proj
 import numpy as np
 import sys
 
-from transformation import calcul_matrice_rotation
+from src.core.transformation import calcul_matrice_rotation
 
 if __name__ == "__main__":
     argc = len(sys.argv)
