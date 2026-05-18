@@ -41,6 +41,7 @@ if __name__ == "__main__":
     # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
     # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
+<<<<<<< HEAD
     tht = np.pi/18 # angle de 10 degrés
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
@@ -67,6 +68,10 @@ if __name__ == "__main__":
     obs_ref.save_json("obs_ref")
 
     """(p1,p1_fake) = proj.project_mire_to_plane(m, v1)
+=======
+    
+    (p1,p1_fake) = proj.project_mire_to_plane(m, v1)
+>>>>>>> origin/main
     p1.save_json("proj_0_deg")
     p1_fake.save_json("proj_0_deg_pour_ident")
     (p2,p2_fake) = proj.project_mire_to_plane(m, v2)
@@ -74,4 +79,8 @@ if __name__ == "__main__":
     p2_fake.save_json("proj_30_deg_pour_ident")
     (p3,p3_fake) = proj.project_mire_to_plane(m, v3)
     p3.save_json("proj_moins_30_deg")
+<<<<<<< HEAD
     p3_fake.save_json("proj_moins_30_deg_pour_ident")"""
+=======
+    p3_fake.save_json("proj_moins_30_deg_pour_ident")
+>>>>>>> origin/main

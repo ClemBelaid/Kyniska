@@ -1,13 +1,18 @@
 from .mire import Mire
 from .observation import Observation
 from math import *
+<<<<<<< HEAD
 #import cv2
+=======
+import cv2
+>>>>>>> origin/main
 import numpy as np
 import itertools
 
 
 def calcul_matrice_rotation(v, angle):
     """
+<<<<<<< HEAD
     Entrée : Un vecteur v qui correspond à l'axe de rotation, et un angle en radians 
     Sortie : La matrice de rotation correspondante (selon la formule de Rodrigues)
     """
@@ -15,13 +20,29 @@ def calcul_matrice_rotation(v, angle):
     vNorm = np.linalg.norm(v)
     if vNorm < 1e-6:
         raise ValueError("Rotation axis too small")
+=======
+    Entrée : Un vecteur v qui correspond à l'axe de rotation, et un angle en degrés
+    Sortie : La matrice de rotation correspondante (selon la formule de Rodrigues)
+    """
+    vNorm = np.linalg.norm(v)
+    if(vNorm < 1e-6 ):
+        print("Rotation direction cannot be a null (or even small) vector!")
+        # Attention : il faudrait plutôt écrire raise ValueError(...) ou quelque chose comme ça
+        return None
+>>>>>>> origin/main
 
     X = v[0] / vNorm
     Y = v[1] / vNorm 
     Z = v[2] / vNorm
 
+<<<<<<< HEAD
     C = np.cos(angle)
     S = np.sin(angle)
+=======
+    vRad = pi * angle / 180
+    C = np.cos(vRad)
+    S = np.sin(vRad)
+>>>>>>> origin/main
     OmC = 1 - C
 
     XS = X * S
@@ -48,4 +69,8 @@ def calcul_matrice_rotation(v, angle):
     return mR
 
 
+<<<<<<< HEAD
 #def calcul_matrice_translation(v):
+=======
+def calcul_matrice_translation(v):
+>>>>>>> origin/main

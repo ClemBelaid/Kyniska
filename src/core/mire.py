@@ -25,6 +25,7 @@ class Mire:
 
         # Construction du dictionnaire
         self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
+<<<<<<< HEAD
         #print(self.pts)
 
         if alignes is None:
@@ -32,6 +33,11 @@ class Mire:
         else:
              # on force un format propre : tuple de 4 entiers
             self.alignes = [tuple(q) for q in alignes]
+=======
+        print(self.pts)
+
+        self.alignes = alignes if alignes else []
+>>>>>>> origin/main
 
     @property
     def points(self):
@@ -117,7 +123,11 @@ class Mire:
             for q in content.get("alignes", [])
         ]
 
+<<<<<<< HEAD
         return cls(points, alignes=alignes, ids=ids)
+=======
+        return cls(points, ids, alignes)
+>>>>>>> origin/main
 
     def getID(self, coords):
         """

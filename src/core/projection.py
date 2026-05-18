@@ -26,10 +26,15 @@ def project_mire_to_plane(mire, v):
 
     observ = {}
     observ_anonym={}
+<<<<<<< HEAD
     observ = {}
     observ_anonym={}
 
     for i, (pid, pt) in enumerate(mire.pts.items()):
+=======
+
+    for i, (pid, pt) in enumerate(mire.data.items()):
+>>>>>>> origin/main
         u = np.array(pt)
 
         u_prime = np.dot(u,v)/np.dot(v,v)*v
@@ -37,6 +42,7 @@ def project_mire_to_plane(mire, v):
         observ[pid]=(np.dot(u1, w), np.dot(u2,w))
         fake_id = -(i+1)
         observ_anonym[fake_id]=(np.dot(u1, w), np.dot(u2,w))
+<<<<<<< HEAD
     points = list(observ.values())
     ids = list(observ.keys())
       
@@ -68,3 +74,24 @@ def project_pt_to_plane(pt , v):
         
       
 
+=======
+      
+
+    return (Observation(observ,v=v),Observation(observ_anonym,v=v))
+
+def chercher_correspond_points(p1,p2):
+    """Entrées: 2 projections p1 et P2 : p1 la projection originale que l'on connait 
+       p2 la projection obtenue en appliquant la rotation sur la mire 
+       Sorties: Ratio de points correspondants (pour le moment)
+       """
+    eps = 1e-3
+    score = 0
+    for pt1 in p1.points:
+        for pt2 in p2.points:
+            d = np.linalg.norm(pt2 - pt1)
+            if d < eps:
+                score += 1 
+    return score            
+    
+               
+>>>>>>> origin/main
