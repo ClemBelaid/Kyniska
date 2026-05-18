@@ -2,60 +2,34 @@ import json
 import numpy as np
 
 class Mire:
-    def __init__(self, points, alignes = None, ids = None):
-        """
-        Crée une mire 3D utilisant un dictionnaire pour le stockage.
-        
-        data_dict : dictionnaire {id: [x, y, z]}
-        alignes : liste de quadruplets d'IDs (a, b, c, d) de points alignés
-        """
+    def __init__(self, points, alignes=None, ids=None):
+
         points = np.asarray(points, dtype=float)
 
         if points.ndim != 2 or points.shape[1] != 3:
             raise ValueError("Les points doivent être des triplets")
 
-        n = len(points)
-
         if ids is None:
-            ids = np.arange(n)
+            ids = np.arange(len(points))
         else:
-            ids = np.asarray(ids)
-            if len(ids) != n:
-                raise ValueError("ids et points doivent avoir la même longueur")
+            ids = np.array(ids)
 
-        # Construction du dictionnaire
-        self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
-<<<<<<< HEAD
-        #print(self.pts)
-
-        if alignes is None:
-            self.alignes = []
-        else:
-             # on force un format propre : tuple de 4 entiers
-            self.alignes = [tuple(q) for q in alignes]
-=======
-        print(self.pts)
+        self.pts = {
+            int(i): points[k].tolist()
+            for k, i in enumerate(ids)
+        }
 
         self.alignes = alignes if alignes else []
->>>>>>> origin/main
-
-    @property
-    def points(self):
-        """Retourne un array numpy (n,3) pour garder la compatibilité avec les calculs."""
-        if not self.pts:
-            return np.array([])
-        return np.array(list(self.pts.values()), dtype=float)
-
-    @property
-    def ids(self):
-        """Retourne la liste des identifiants des billes."""
-        return list(self.pts.keys())
 
     def __len__(self):
         return len(self.pts)
 
     def __str__(self):
-        return f"Mire with {len} points"
+        return f"Mire with {len(self)} points"
+    
+    @property
+    def points(self):
+        return np.array(list(self.pts.values()), dtype=float)
 
     def draw(self, ax=None):
         """Affiche la mire avec matplotlib (3D)."""
@@ -103,37 +77,28 @@ class Mire:
         with open(filename, "w") as f:
             json.dump(data_to_save, f, indent=4)
 
+    
     @classmethod
     def load_json(cls, filename):
-        """Charge une mire depuis un JSON et construit le dictionnaire."""
+
         with open(filename, "r") as f:
             content = json.load(f)
 
         ids = []
         points = []
 
-        # Reconstruction des tableaux ids et poinds
         for pt in content["points"]:
             ids.append(pt["id"])
             points.append([pt["x"], pt["y"], pt["z"]])
 
-        # Reconstruction du tableau alignés
-        alignes = [
-            [q["a"], q["b"], q["c"], q["d"]] 
-            for q in content.get("alignes", [])
-        ]
+        alignes = []
 
-<<<<<<< HEAD
+        for q in content.get("alignes", []):
+            alignes.append([
+            q["a"],
+            q["b"],
+            q["c"],
+            q["d"]
+        ])
+
         return cls(points, alignes=alignes, ids=ids)
-=======
-        return cls(points, ids, alignes)
->>>>>>> origin/main
-
-    def getID(self, coords):
-        """
-        Entrée : Un triplet de coordonnées (x,y,z).
-        Sortie : L'identifiant du point ayant ces coordonnées.
-        """
-        for id, pt in self.pts.items():
-            if (pt == coords).all():
-                return id
