@@ -22,7 +22,7 @@ def frst_process(mire,vn,xo,yo):
     #On suppose que d(xo,yo)>0 (xo et yo ne sont pas trop proches)
     #prendre 2 points au hasard de notre mire 
     
-    (xm,ym)=check_couple(mire,vn,xo,yo)
+    (xm,ym)=check_couple(mire,vn,xo,yo,1)
     xp = project_pt_to_plane(xm, vn)
     yp = project_pt_to_plane(ym, vn)
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)

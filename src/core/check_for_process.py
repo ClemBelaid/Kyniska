@@ -34,10 +34,10 @@ def check_observ(obs_v, obs_sim):
 
     return rms
 
-def check_couple(mire,vn,xo,yo):
+def check_couple(mire,vn,xo,yo,lambda_):
     best_score = np.inf
     best_pair = None
-
+    
     for _ in range(100):
 
         id1, id2 = random.sample(mire.ids, 2)
@@ -54,8 +54,13 @@ def check_couple(mire,vn,xo,yo):
             continue
 
         d_obs = np.linalg.norm(yo - xo)
+        if np.linalg.norm(yo - xo) < 1e-8:
+            continue
 
-        score = abs(d - d_obs)
+        u_obs = (yo - xo) / np.linalg.norm(yo - xo)
+        u_mire = (yp - xp) / np.linalg.norm(yp - xp)
+
+        score = abs(d - d_obs) / d_obs - lambda_ * np.dot(u_mire, u_obs)
 
         if score < best_score:
             best_score = score
