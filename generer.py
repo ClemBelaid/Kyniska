@@ -1,8 +1,6 @@
 from src.core import Mire
 import src.core.generation as gen 
 import src.core.projection as proj
-
-import src.core.plot.plot as pl
 from src.core.geometry import build_basis
 import numpy as np
 import sys
@@ -77,16 +75,16 @@ if __name__ == "__main__":
     points = list(lst.values())
     ids = list(lst.keys())
     mir=Mire(points, ids=ids, alignes=m.alignes)
-    obs_ref = proj.project_mire_to_plane(mir,v2)
+    obs_ref = proj.project_mire_to_plane(mir,screen)
     obs_ref.save_json("obs_ref")
-    pl.plot_scene_3d(
+    """pl.plot_scene_3d(
         "newMire",
         "obs_ref",
         screen,
         screen_width=120,
         screen_height=120,
         show_projection_lines=True
-    )
+    )"""
     """(p1,p1_fake) = proj.project_mire_to_plane(m, v1)
     p1.save_json("proj_0_deg")
     p1_fake.save_json("proj_0_deg_pour_ident")
