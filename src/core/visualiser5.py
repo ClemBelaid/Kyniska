@@ -74,38 +74,42 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     # Altitude de l'écran
     z_sol = -20
     
-    # 2. MODÉLISATION ET AFFICHAGE DE L'ÉCRAN PHYSIQUE (Rectangle gris)
+    # 2. Modélisation de l'écran (Plaque grise)
     x_min, x_max = pts_ecran[:, 0].min() - 20, pts_ecran[:, 0].max() + 20
     y_min, y_max = pts_ecran[:, 1].min() - 20, pts_ecran[:, 1].max() + 20
     X_surface, Y_surface = np.meshgrid([x_min, x_max], [y_min, y_max])
     Z_surface = np.full_like(X_surface, z_sol)
     ax.plot_surface(X_surface, Y_surface, Z_surface, color='gray', alpha=0.15, edgecolor='black', linewidth=1.2)
 
-    # 3. Tracé des observations (Croix rouges) sur l'écran
+    # 3. Tracé des observations réelles (Croix rouges)
     scatter_obs = ax.scatter(pts_ecran[:, 0], pts_ecran[:, 1], np.full_like(pts_ecran[:, 0], z_sol), color='red', marker='x', s=120, label='Obs Écran')
 
-    # 4. Association par proximité (Lignes oranges)
+    # 4. TRACÉ DES PROJECTIONS PARFAITEMENT PERPENDICULAIRES
     lignes = []
     for i in range(len(pts_transformes)):
         pt_3d = pts_transformes[i]
-        distances = np.sum((pts_ecran - pt_3d[:2])**2, axis=1)
-        index_plus_proche = np.argmin(distances)
-        pt_ecran_cible = pts_ecran[index_plus_proche]
+        
+        # Le secret est là : le pied de la perpendiculaire garde le MÊME X et le MÊME Y
+        pt_pied_perpendiculaire = [pt_3d[0], pt_3d[1]]
 
+        # On trace la ligne verticale parfaite vers l'écran
         line, = ax.plot(
-            [pt_3d[0], pt_ecran_cible[0]],
-            [pt_3d[1], pt_ecran_cible[1]],
+            [pt_3d[0], pt_pied_perpendiculaire[0]],
+            [pt_3d[1], pt_pied_perpendiculaire[1]],
             [pt_3d[2], z_sol],
-            color='darkorange', linestyle='--', alpha=0.6, linewidth=1.5
+            color='darkorange', linestyle='--', alpha=0.7, linewidth=1.5
         )
         lignes.append(line)
+        
+        # On affiche un petit point bleu clair sur l'écran pour voir la projection théorique
+        ax.scatter(pt_pied_perpendiculaire[0], pt_pied_perpendiculaire[1], z_sol, color='deepskyblue', s=20, alpha=0.5)
 
     ax.set_xlim3d(-50, 150)
     ax.set_ylim3d(-50, 150)
     ax.set_zlim3d(-50, 150)
     ax.legend()
 
-    # Bouton de rotation
+    # Bouton d'interaction
     ax_btn = plt.axes([0.1, 0.05, 0.2, 0.06])
     btn = Button(ax_btn, 'Auto-Rotate: OFF', color='lightgray', hovercolor='skyblue')
     
@@ -120,7 +124,7 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     def animate(frame):
         if visualiser_3D.auto_rotate:
             ax.view_init(elev=20, azim=frame)
-        ax.set_title("Kyniska V5 - Écran Physique Modélisé")
+        ax.set_title("Kyniska V5 - Projection Orthogonale (Perpendiculaire)")
         return [scatter_mire, scatter_obs] + lignes
 
     anim = animation.FuncAnimation(fig, animate, frames=360, interval=30, blit=False)
