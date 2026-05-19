@@ -11,24 +11,23 @@ from .check_for_process import check_couple
 
 
 
-def frst_process(mire,vn,xo,yo):
+def frst_process(mire,screen,xo,yo):
     """ Entrées: la mire , le vecteur normal du plan écran et les 2 points fixés de l'écran
         Sorties:La mire obtenue après la translation et la rotation  les points xm, ym """
     eps = 1e-2
-    u1 = perpendicular_vector(vn)
-    u2=np.cross(u1,vn)
+   
     random.seed(0)
     
     #On suppose que d(xo,yo)>0 (xo et yo ne sont pas trop proches)
     #prendre 2 points au hasard de notre mire 
     
-    (xm,ym)=check_couple(mire,vn,xo,yo,1)
-    xp = project_pt_to_plane(xm, vn)
-    yp = project_pt_to_plane(ym, vn)
+    (xm,ym)=check_couple(mire,screen,xo,yo,1)
+    xp = project_pt_to_plane(xm, screen)
+    yp = project_pt_to_plane(ym, screen)
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)
     #On applique alors la translation de vecteur xpxo à la mire 
     xp_xo = xo - xp 
-    trs_3d = xp_xo[0]*u1 + xp_xo[1]*u2 + 50*vn/np.linalg.norm(vn)
+    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 50*screen["normal"]/np.linalg.norm(vn)
     mat_trs = np.array([
     [1,0,0,trs_3d[0]],
     [0,1,0,trs_3d[1]],
@@ -39,27 +38,27 @@ def frst_process(mire,vn,xo,yo):
     ################################################
     lst_xmire_trs = {}
     for id, x_mire in mire.pts.items():
-        x_mire_homo = np.array(x_mire + [1])
-        x_mire_trs_homo= mat_trs @ x_mire_homo
-        lst_xmire_trs[id] = (x_mire_trs_homo[:3] / x_mire_trs_homo[3]).tolist()
+        x_mire_h = np.array([x_mire[0], x_mire[1], x_mire[2], 1.0])
+        x_mire_trs_homo= mat_trs @ x_mire_h
+        lst_xmire_trs[id] = x_mire_trs_homo[:3].tolist()
     #On considère maintenant notre ym_prim translaté ayant fixé la projection de xm sur xo=xp
     # Il faut récupérer xm et ym transformés par la translation et la rotation  car il nous serviront pour le second_process 
     ###################################################################
-    xm_homo = np.array(xm + [1])
-    xm_trs_homo= mat_trs @ xm_homo
-    xm_trs =  xm_trs_homo[:3] /  xm_trs_homo[3] 
+    xm_h = np.array([xm[0], xm[1], xm[2], 1.0])
+    xm_trs_homo= mat_trs @ xm_h
+    xm_trs =  xm_trs_homo[:3] 
     
-    ym_homo = np.array(ym + [1])
-    ym_trs_homo= mat_trs @ ym_homo
-    ym_trs =  ym_trs_homo[:3] /  ym_trs_homo[3] # Pour revenir en 3D 
+    ym_h = np.array([ym[0], x_mire[1], x_mire[2], 1.0])
+    ym_trs_homo= mat_trs @ ym_h
+    ym_trs =  ym_trs_homo[:3] # Pour revenir en 3D 
     
     ######################################################################
     
-    yp_prim = project_pt_to_plane(ym_trs,vn)
+    yp_prim = project_pt_to_plane(ym_trs,screen)
     yo_xo = yo-xo
     ypp_xo = yp_prim - xo 
-    yo_xo_3d = yo_xo[0]*u1 + yo_xo[1]*u2
-    ypp_xo_3d = ypp_xo[0]*u1 + ypp_xo[1]*u2
+    yo_xo_3d = yo_xo[0]*screen["u1"] + yo_xo[1]*screen["u2"]
+    ypp_xo_3d = ypp_xo[0]*screen["u2"] + ypp_xo[1]*screen["u2"]
     
     ##################################################
     
@@ -98,15 +97,14 @@ def frst_process(mire,vn,xo,yo):
 
 
 
-def scd_process(mire,vn,lst_xmr_fin,xm,ym,xo,yo):
+def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
     """Entrées: la mire , le vecteur normal au plan écran ,la liste des points de la mire après le first_process, les points 
     xm et ym obtenues après translation et rotation  de la mire, xo et yo les points fixés de l'écran
        Sorties : la mire roté pour que p(ym)=yp soit égale à yo """
     ym_xm = ym - xm
     yo_xo = yo - xo #un vecteur 2D qu'il faut mettre en 3D avec le repère (u1 ,u2 ) de l'écran 
-    u1 = perpendicular_vector(vn)
-    u2 = np.cross(vn, u1)
-    vect = yo_xo[0]*u1 + yo_xo[1]*u2 
+   
+    vect = yo_xo[0]*screen["u1"] + yo_xo[1]*screen["u2"]
     u = ym_xm/ np.linalg.norm(ym_xm)
     v = vect / np.linalg.norm(vect)
     #vecteur ortho au plan P vertical contenant tous ces points et autour duquel 
@@ -141,7 +139,7 @@ def scd_process(mire,vn,lst_xmr_fin,xm,ym,xo,yo):
 
     return (Mire(points, ids=ids, alignes=mire.alignes), xm_rote , ym_rote, lst_fin)
 
-def thd_process(mire,v,obs,xm,ym,N):
+def thd_process(mire,screen,obs,xm,ym,N):
     """Entrées: la mire qui a été fixée correctement,le vecteur normal au plan ,l'observation originale, 
     xm et ym qui sont sur notre axe de rotation N pour la discrétisation des angles """
     angles = np.linspace(0, 2*np.pi, N, endpoint=False)
@@ -173,7 +171,7 @@ def thd_process(mire,v,obs,xm,ym,N):
 
         new_mire = Mire(points, ids=ids, alignes=mire.alignes)
 
-        observ = project_mire_to_plane(new_mire, v)
+        observ = project_mire_to_plane(new_mire, screen)
 
         rms = check_observ(obs, observ)
 

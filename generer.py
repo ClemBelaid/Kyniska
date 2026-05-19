@@ -1,6 +1,9 @@
 from src.core import Mire
 import src.core.generation as gen 
 import src.core.projection as proj
+
+import src.core.plot.plot as pl
+from src.core.geometry import build_basis
 import numpy as np
 import sys
 
@@ -45,24 +48,45 @@ if __name__ == "__main__":
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
     
-    mat = np.array([
+    """mat = np.array([
     [np.cos(phi), -np.sin(phi), 0, 20],
     [np.sin(phi),  np.cos(phi), 0, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 1]
+    ])"""
+    u1, u2 = build_basis(v2)
+    screen = {
+    "origin": np.array([0.,0.,0.]),
+    "normal": v2,
+    "u1": u1,
+    "u2": u2
+    }
+    mat = np.array([
+    [1, 0, 0, 0],
+    [0,1, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]
     ])
+
     lst = {}
     for id, x_mire in m.pts.items():
         x_mire_homo= np.array(x_mire + [1])
         x_mire_trs_homo1= mat @ x_mire_homo
         #x_mire_trs_homo2= mat2 @  x_mire_trs_homo1
-        lst[id] = (x_mire_trs_homo1[:3] / x_mire_trs_homo1[3]).tolist()
+        lst[id] = x_mire_trs_homo1[:3].tolist()
     points = list(lst.values())
     ids = list(lst.keys())
     mir=Mire(points, ids=ids, alignes=m.alignes)
     obs_ref = proj.project_mire_to_plane(mir,v2)
     obs_ref.save_json("obs_ref")
-
+    pl.plot_scene_3d(
+        "newMire",
+        "obs_ref",
+        screen,
+        screen_width=120,
+        screen_height=120,
+        show_projection_lines=True
+    )
     """(p1,p1_fake) = proj.project_mire_to_plane(m, v1)
     p1.save_json("proj_0_deg")
     p1_fake.save_json("proj_0_deg_pour_ident")

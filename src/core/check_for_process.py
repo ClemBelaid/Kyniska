@@ -34,7 +34,7 @@ def check_observ(obs_v, obs_sim):
 
     return rms
 
-def check_couple(mire,vn,xo,yo,lambda_):
+def check_couple(mire,screen,xo,yo,lambda_):
     best_score = np.inf
     best_pair = None
     
@@ -45,8 +45,8 @@ def check_couple(mire,vn,xo,yo,lambda_):
         xm = mire.pts[id1]
         ym = mire.pts[id2]
 
-        xp = project_pt_to_plane(xm, vn)
-        yp = project_pt_to_plane(ym, vn)
+        xp = project_pt_to_plane(xm, screen["normal"])
+        yp = project_pt_to_plane(ym, screen["normal"])
 
         d = np.linalg.norm(yp - xp)
 
