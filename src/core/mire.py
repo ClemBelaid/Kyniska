@@ -31,6 +31,7 @@ class Mire:
         self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
 
         # Matrice de pose par défaut = l'identité (pour débuter)
+        # Rmq : Xcam = R*Xmire + t = Mpose*Xmire
         if pose is None:
             self.pose = np.identity(4)
         else:
@@ -69,6 +70,9 @@ class Mire:
 
         pts = self.points
         if pts.size > 0:
+            pts = [np.append(pt, 1) for pt in pts]
+            pts = [self.pose*pt for pt in pts]
+            print(pts)
             ax.scatter(pts[:,0], pts[:,1], pts[:,2])
 
         ax.set_xlabel("x")
