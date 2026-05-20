@@ -5,7 +5,7 @@ from matplotlib import animation
 from matplotlib.widgets import Button
 import numpy as np
 
-#CONFIGURATION DES CHEMINS
+# --- CONFIGURATION DES CHEMINS ---
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 MIRE_PATH = os.path.join(BASE_DIR, "newMire")
@@ -16,7 +16,7 @@ OBS_PATH = os.path.join(BASE_DIR, "obs_ref")
 if not os.path.exists(OBS_PATH) and os.path.exists(OBS_PATH + ".json"):
     OBS_PATH += ".json"
 
-#Matrice de recalage (10° autour de Z + 30mm sur X)
+# Matrice de recalage (10° autour de Z + 30mm sur X)
 tht = np.pi / 18
 T_M_GENERER = np.array([
     [np.cos(tht), -np.sin(tht), 0.0, 30.0],
@@ -46,7 +46,7 @@ def charger_points(json_path, est_2d=False):
                 points_dict[pid] = [float(v[0]), float(v[1]), z_val]
     return points_dict
 
-
+# --- FONCTION PRINCIPALE ---
 def visualiser_3D(mire_json, ecran_json, T_M):
     mire_dict = charger_points(mire_json, est_2d=False)
     ecran_dict = charger_points(ecran_json, est_2d=True)
@@ -54,19 +54,12 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     pts_mire = np.array(list(mire_dict.values()))
     pts_ecran = np.array(list(ecran_dict.values()))
 
-    # --- SÉCURITÉ ET ÉTALEMENT VERTICAL ---
-    for i in range(len(pts_mire)):
-        if pts_mire[i, 2] == 0.0:
-            pts_mire[i, 2] = (i + 1) * 25.0
-        else:
-            pts_mire[i, 2] *= 2.5
-
-    #Application de la transformation T_M sur la mire 3D étalée
+    # Application de la transformation T_M sur la mire 3D
     ones = np.ones((pts_mire.shape[0], 1))
     pts_mire_homo = np.hstack((pts_mire, ones))
     pts_transformes = (T_M @ pts_mire_homo.T).T[:, :3]
 
-    #GRAPHISME MATPLOTLIP
+    # --- GRAPHISME MATPLOTLIB ---
     fig = plt.figure(figsize=(11, 8))
     ax = fig.add_subplot(111, projection='3d')
     plt.subplots_adjust(bottom=0.2)
@@ -75,20 +68,20 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     ax.set_ylabel("Y (mm)")
     ax.set_zlabel("Z (mm)")
 
-    #altitude de l'écran
+    # Altitude de l'écran
     z_sol = -20
     
-    #1. Modélisation de l'écran (Plaque grise - STATIC)
+    # 1. Modélisation de l'écran (Plaque grise - STATIC)
     x_min, x_max = pts_ecran[:, 0].min() - 20, pts_ecran[:, 0].max() + 20
     y_min, y_max = pts_ecran[:, 1].min() - 20, pts_ecran[:, 1].max() + 20
     X_surface, Y_surface = np.meshgrid([x_min, x_max], [y_min, y_max])
     Z_surface = np.full_like(X_surface, z_sol)
     ax.plot_surface(X_surface, Y_surface, Z_surface, color='gray', alpha=0.15, edgecolor='black', linewidth=1.2)
 
-    #2. Tracé des observations réelles (Croix rouges - STATIC)
+    # 2. Tracé des observations réelles (Croix rouges - STATIC)
     scatter_obs = ax.scatter(pts_ecran[:, 0], pts_ecran[:, 1], np.full_like(pts_ecran[:, 0], z_sol), color='red', marker='x', s=120, label='Obs Écran')
 
-    #3. TRACÉ DES TRAJECTOIRES CYCLIQUES SIMULTANÉES (3D En l'air + 2D Ombres au sol)
+    # 3. TRACÉ DES TRAJECTOIRES CYCLIQUES AU SOL (Ellipses/Cercles - STATIC)
     angles_full = np.linspace(0, 2 * np.pi, 360)
     for pt_3d in pts_transformes:
         trajectoire_x = []
@@ -98,14 +91,9 @@ def visualiser_3D(mire_json, ecran_json, T_M):
             y_rot = pt_3d[0] * np.sin(a) + pt_3d[1] * np.cos(a)
             trajectoire_x.append(x_rot)
             trajectoire_y.append(y_rot)
-            
-        # Piste 3D réelle en l'air au niveau de la bille (Z initial de la bille)
-        ax.plot(trajectoire_x, trajectoire_y, pt_3d[2], color='royalblue', linestyle='-', alpha=0.2, linewidth=1.2)
-        
-        # Piste "Ombre" projetée au sol sur l'écran (Z = z_sol)
-        ax.plot(trajectoire_x, trajectoire_y, z_sol, color='deepskyblue', linestyle='-', alpha=0.15, linewidth=1)
+        ax.plot(trajectoire_x, trajectoire_y, z_sol, color='deepskyblue', linestyle='-', alpha=0.2, linewidth=1)
 
-    # 4. OBJETS DYNAMIQUES (Initialement vides, gérés par animate)
+    # 4. OBJETS DYNAMIQUES (Mis à jour par la fonction animate)
     scatter_mire = ax.scatter([], [], [], color='blue', s=60, label='Mire 3D Dynamique')
     lignes = [ax.plot([], [], [], color='darkorange', linestyle='--', alpha=0.7, linewidth=1.5)[0] for _ in range(len(pts_transformes))]
     scatter_pieds = ax.scatter([], [], [], color='deepskyblue', s=20, alpha=0.6)
@@ -115,7 +103,7 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     ax.set_zlim3d(-50, 150)
     ax.legend()
 
-    # Gestion propre de l'état (Évite les compteurs fantômes sur OFF)
+    # Gestion de l'état d'animation et de rotation caméra
     auto_rotate = False
 
     # Bouton d'interaction
@@ -127,6 +115,7 @@ def visualiser_3D(mire_json, ecran_json, T_M):
         auto_rotate = not auto_rotate
         btn.label.set_text(f"Auto-Rotate: {'ON' if auto_rotate else 'OFF'}")
         
+        # On coupe ou on relance directement le cœur de l'animation pour tout figer d'un coup
         if auto_rotate:
             anim.event_source.start()
         else:
@@ -135,7 +124,7 @@ def visualiser_3D(mire_json, ecran_json, T_M):
         fig.canvas.draw_idle()
     btn.on_clicked(toggle_rotation)
 
-    # --- ANIMATION MAÎTRISÉE ---
+    # --- ANIMATION CONFORME AU SCHÉMA ---
     def animate(frame):
         nonlocal auto_rotate
         alpha_rad = np.radians(frame)
@@ -150,10 +139,10 @@ def visualiser_3D(mire_json, ecran_json, T_M):
         # Application de la rotation sur la mire transformée
         pts_courants = (R_dynamic @ pts_transformes.T).T
         
-        # 1. Mise à jour des billes bleues (Elles glissent sur les rails 3D en l'air)
+        # 1. Mise à jour des billes bleues de la mire
         scatter_mire._offsets3d = (pts_courants[:, 0], pts_courants[:, 1], pts_courants[:, 2])
         
-        # 2. Mise à jour des lignes de projection perpendiculaires
+        # 2. Mise à jour des lignes perpendiculaires et de leurs pieds au sol
         pieds_x, pieds_y = [], []
         for i, pt_3d in enumerate(pts_courants):
             x1, y1, z1 = pt_3d[0], pt_3d[1], pt_3d[2]
@@ -167,13 +156,14 @@ def visualiser_3D(mire_json, ecran_json, T_M):
             
         scatter_pieds._offsets3d = (pieds_x, pieds_y, np.full_like(pieds_x, z_sol))
 
+        # Changement d'angle de la caméra uniquement si ON
         if auto_rotate:
             ax.view_init(elev=20, azim=frame)
             
-        ax.set_title(f"Kyniska V6 - Trajectoires Spatiales Cohérentes ({frame}°)")
+        ax.set_title(f"Kyniska V6 - Angle de rotation : {frame}°")
         return [scatter_mire, scatter_pieds] + lignes
 
-    # On initialise l'animation figée au démarrage
+    # Initialisation de l'animation (On la stoppe au démarrage pour commencer à 0°)
     anim = animation.FuncAnimation(fig, animate, frames=360, interval=30, blit=False)
     anim.event_source.stop()
     

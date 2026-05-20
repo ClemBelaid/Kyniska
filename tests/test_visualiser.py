@@ -11,7 +11,7 @@ if racine_projet not in sys.path:
     sys.path.insert(0, racine_projet)
 
 # Importation de la nouvelle fonction principale
-from src.core.visualiser4_mire import visualiser_3D
+from src.core.visualiser6 import visualiser_3D
 
 class TestVisualiseurV5(unittest.TestCase):
     
