@@ -1,9 +1,18 @@
 import json
 import numpy as np
+import cv2
+from .transformation import calcul_matrice_pose
 
 class Mire:
-    def __init__(self, points, alignes=None, ids=None):
-
+    def __init__(self, points, pose = None, alignes = None, ids = None):
+        """
+        Crée une mire 3D utilisant un dictionnaire pour le stockage.
+        
+        points : une liste des points 3D de la mire
+        pose : la matrice de pose de la mire par rapport au référentiel écran (monde)
+        alignes : liste de quadruplets d'IDs (a, b, c, d) de points alignés
+        ids : liste des identifiants des points 3D
+        """
         points = np.asarray(points, dtype=float)
 
         if points.ndim != 2 or points.shape[1] != 3:
@@ -14,11 +23,19 @@ class Mire:
         else:
             ids = np.array(ids)
 
-        self.pts = {
-            int(i): points[k].tolist()
-            for k, i in enumerate(ids)
-        }
-        self.ids = list(self.pts.keys())
+        # Construction du dictionnaire
+        self.pts = {int(i): points[k].tolist() for k, i in enumerate(ids)}
+
+        # Matrice de pose par défaut = l'identité (pour débuter)
+        # Rmq : Xcam = R*Xmire + t = Mpose*Xmire
+        if pose is None:
+            self.pose = np.identity(4)
+        else:
+            self.pose = pose
+
+        # Récupération des matrices de rotation et de translation à partir de la matrice de pose
+        self.rmatrix = self.pose[0:3, 0:3]
+        self.tmatrix = self.pose[0:3, 3]
 
         self.alignes = alignes if alignes else []
 
@@ -41,6 +58,9 @@ class Mire:
 
         pts = self.points
         if pts.size > 0:
+            pts = [np.append(pt, 1) for pt in pts]
+            pts = [self.pose*pt for pt in pts]
+            print(pts)
             ax.scatter(pts[:,0], pts[:,1], pts[:,2])
 
         ax.set_xlabel("x")
@@ -57,7 +77,11 @@ class Mire:
         data_to_save = {
             "name": filename,
             "points": [],
-            "alignes": []
+            "alignes": [],
+            "pose": {
+                "rotation" : self.rmatrix.tolist(),
+                "translation" : self.tmatrix.tolist()
+            }
         }
 
         # On itère directement sur le dictionnaire
@@ -94,12 +118,10 @@ class Mire:
 
         alignes = []
 
-        for q in content.get("alignes", []):
-            alignes.append([
-            q["a"],
-            q["b"],
-            q["c"],
-            q["d"]
-        ])
+        rmatrix = np.array(content["pose"]["rotation"])
+        tmatrix = np.array(content["pose"]["translation"])
+        pose = calcul_matrice_pose(rmatrix, tmatrix)
+
+        return cls(points, pose, alignes, ids)
 
         return cls(points, alignes=alignes, ids=ids)
