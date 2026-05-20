@@ -105,27 +105,13 @@ def generer_cone_tronque_creux(nb_billes, ids=None,
 
     return Mire(points, ids=ids)
 
-def generer_cube(nb_billes, ids=None,
+def generer_cube(nb_billes = 8, s = 30, ids=None,
                  largeur=200.0,
                  longueur=200.0,
                  epaisseur=30.0):
 
-    points = []
-
-    # on force une structure régulière + bruit léger
-    for _ in range(nb_billes):
-
-        # base quasi-grille
-        x = np.random.choice(np.linspace(-largeur/2, largeur/2, int(np.sqrt(nb_billes))))
-        y = np.random.choice(np.linspace(-longueur/2, longueur/2, int(np.sqrt(nb_billes))))
-
-        z = np.random.uniform(0, epaisseur)
-
-        # petit bruit pour éviter dégénérescence
-        x += np.random.normal(0, 0.5)
-        y += np.random.normal(0, 0.5)
-
-        points.append([x, y, z])
+    # Pour l'instant je pars du principe qu'on a 8 billes (minimum)
+    points = [(0,0,0), (s,0,0), (0,s,0), (0,0,s), (s,s,0),(s,0,s),(0,s,s), (s,s,s)]
 
     data_dict = {i: p for i, p in enumerate(points)}
     ids = list(data_dict.keys())
