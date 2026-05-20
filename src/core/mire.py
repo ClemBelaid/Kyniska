@@ -48,6 +48,10 @@ class Mire:
     @property
     def points(self):
         return np.array(list(self.pts.values()), dtype=float)
+    
+    @property
+    def ids(self):
+        return np.array(list(self.pts.keys()), dtype=int)
 
     def draw(self, ax=None):
         """Affiche la mire avec matplotlib (3D)."""
@@ -59,9 +63,9 @@ class Mire:
         pts = self.points
         if pts.size > 0:
             pts = [np.append(pt, 1) for pt in pts]
-            pts = [self.pose*pt for pt in pts]
-            print(pts)
-            ax.scatter(pts[:,0], pts[:,1], pts[:,2])
+            pts = [self.pose@pt for pt in pts]
+            for pt in pts:
+                ax.scatter(pt[0], pt[1], pt[2])
 
         ax.set_xlabel("x")
         ax.set_ylabel("y")
