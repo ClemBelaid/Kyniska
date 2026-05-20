@@ -1,4 +1,5 @@
-import numpy as np 
+import numpy as np
+import matplotlib as plt
 import random
 from .mire import Mire 
 from .geometry import perpendicular_vector
@@ -27,7 +28,7 @@ def frst_process(mire,screen,xo,yo):
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)
     #On applique alors la translation de vecteur xpxo à la mire 
     xp_xo = xo - xp 
-    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 50*screen["normal"]/np.linalg.norm(vn)
+    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 50*screen["normal"]
     mat_trs = np.array([
     [1,0,0,trs_3d[0]],
     [0,1,0,trs_3d[1]],
@@ -41,6 +42,9 @@ def frst_process(mire,screen,xo,yo):
         x_mire_h = np.array([x_mire[0], x_mire[1], x_mire[2], 1.0])
         x_mire_trs_homo= mat_trs @ x_mire_h
         lst_xmire_trs[id] = x_mire_trs_homo[:3].tolist()
+
+    mire.draw()
+    plt.show()
     #On considère maintenant notre ym_prim translaté ayant fixé la projection de xm sur xo=xp
     # Il faut récupérer xm et ym transformés par la translation et la rotation  car il nous serviront pour le second_process 
     ###################################################################

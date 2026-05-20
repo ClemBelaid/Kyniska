@@ -40,7 +40,7 @@ def check_couple(mire,screen,xo,yo,lambda_):
     
     for _ in range(100):
 
-        id1, id2 = random.sample(mire.ids, 2)
+        id1, id2 = random.sample(mire.ids.tolist(), 2)
 
         xm = mire.pts[id1]
         ym = mire.pts[id2]
