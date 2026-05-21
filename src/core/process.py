@@ -52,11 +52,11 @@ def frst_process(mire,screen,xo,yo):
     xm_trs_homo= mat_trs @ xm_h
     xm_trs =  xm_trs_homo[:3] 
     
-    ym_h = np.array([ym[0], x_mire[1], x_mire[2], 1.0])
+    ym_h = np.array([ym[0], ym[1], ym[2], 1.0])
     ym_trs_homo= mat_trs @ ym_h
     ym_trs =  ym_trs_homo[:3] # Pour revenir en 3D 
     
-    ######################################################################
+    #####################################################################
     
     yp_prim = project_pt_to_plane(ym_trs,screen)
     yo_xo = yo-xo
