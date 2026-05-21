@@ -11,7 +11,11 @@ if racine_projet not in sys.path:
     sys.path.insert(0, racine_projet)
 
 # Importation de la nouvelle fonction principale
+<<<<<<< HEAD
 from src.core.visualiser6 import visualiser_3D
+=======
+from src.core.visualiser5 import visualiser_3D
+>>>>>>> d23e5b5 (Plusieurs modifs liés à generer.py et le nouveau fichier compare2.py maintenant les commandes à exécuter sont python generer.py forme nb_pts et python -m src.core.compare2)
 
 class TestVisualiseurV5(unittest.TestCase):
     

@@ -1,14 +1,16 @@
 import numpy as np
 import matplotlib as plt
 import random
-from .mire import Mire 
-from .geometry import perpendicular_vector
-from .projection import project_mire_to_plane
-from .projection import project_pt_to_plane
-from .transformation import calcul_matrice_rotation
-from .geometry import perpendicular_vector
-from .check_for_process import check_observ
-from .check_for_process import check_couple
+import matplotlib.pyplot as plt
+from src.core.mire import Mire 
+from src.core.geometry import perpendicular_vector
+from src.core.projection import project_mire_to_plane
+from src.core.projection import project_pt_to_plane
+from src.core.transformation import calcul_matrice_rotation
+from src.core.geometry import perpendicular_vector
+from src.core.check_for_process import check_observ
+from src.core.check_for_process import check_couple
+#from .visualiser6 import visualiser_iteration
 
 
 
@@ -21,7 +23,7 @@ def frst_process(mire,screen,xo,yo):
     
     #On suppose que d(xo,yo)>0 (xo et yo ne sont pas trop proches)
     #prendre 2 points au hasard de notre mire 
-    
+    vn=screen["normal"]
     (xm,ym)=check_couple(mire,screen,xo,yo,1)
     xp = project_pt_to_plane(xm, screen)
     yp = project_pt_to_plane(ym, screen)
@@ -146,7 +148,9 @@ def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
 def thd_process(mire,screen,obs,xm,ym,N):
     """Entrées: la mire qui a été fixée correctement,le vecteur normal au plan ,l'observation originale, 
     xm et ym qui sont sur notre axe de rotation N pour la discrétisation des angles """
+    
     angles = np.linspace(0, 2*np.pi, N, endpoint=False)
+    
     ym_xm = ym - xm
 
     eps = 1e-4
@@ -187,6 +191,66 @@ def thd_process(mire,screen,obs,xm,ym,N):
         if rms < eps:
             break
 
-    return (best_mire, best_rms, best_angle)
+        return (best_mire, best_rms, best_angle)
            
-"""Après ça serait bien d'avoir des fonctions d'affichage de mire et de plan pour mieux visualiser le truc """
+
+
+"""def thd_process_aff(mire,screen,obs,xm,ym,N):
+    Entrées: la mire qui a été fixée correctement,le vecteur normal au plan ,l'observation originale, 
+    xm et ym qui sont sur notre axe de rotation N pour la discrétisation des angles 
+    angles = np.linspace(0, 2*np.pi, N, endpoint=False)
+    ym_xm = ym - xm
+
+    eps = 1e-4
+
+    best_rms = np.inf
+    best_mire = None
+    best_angle = None
+
+    plt.ion()
+
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    for agl in angles:
+
+
+        axis = ym_xm / np.linalg.norm(ym_xm)
+        mR = calcul_matrice_rotation(axis, agl)
+
+        lst_pt = {}
+
+        for id, x_mire in mire.pts.items():
+            x_mire = np.array(x_mire)
+
+            x_mire_rote = mR @ (x_mire - xm) + xm
+
+            lst_pt[id] = x_mire_rote.tolist()
+
+        points = list(lst_pt.values())
+        ids = list(lst_pt.keys())
+
+        new_mire = Mire(points, ids=ids, alignes=mire.alignes)
+
+        observ = project_mire_to_plane(new_mire, screen)
+        observ = project_mire_to_plane(new_mire, screen)
+        rms = check_observ(obs, observ)
+        visualiser_iteration(
+            new_mire,
+            observ,
+            screen,
+            angle=agl,
+            rms=rms
+        )
+
+        
+
+        if rms < best_rms:
+            best_rms = rms
+            best_mire = new_mire
+            best_angle = agl
+
+        if rms < eps:
+            break
+
+    return (best_mire, best_rms, best_angle)"""

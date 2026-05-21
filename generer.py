@@ -23,17 +23,17 @@ if __name__ == "__main__":
     if(sys.argv[1] == "pave"):
         m = gen.generer_cube(nb_pts)
     
-    if(sys.argv[1] == "cone tronque"):
+    if(sys.argv[1] == "cone_tronque"):
         m = gen.generer_cone_tronque(nb_pts)
     
-    if(sys.argv[1] == "cone tronque creux"):
+    if(sys.argv[1] == "cone_tronque_creux"):
         m = gen.generer_cone_tronque_creux(nb_pts)
     
     m.save_json("newMire")
 
     # Pour l'instant je dis que a1 = 0°, a2 = 30°, a3 = -30°
     #v1 = np.array([0,0,1])
-    v2 = np.array([0, 0.5, np.sqrt(3)/2])
+    v2 = np.array([0, 0, 1])
     #v3 = np.array([0, -0.5, np.sqrt(3)/2])
 
 
@@ -53,8 +53,14 @@ if __name__ == "__main__":
     [0, 0, 0, 1]
     ])"""
     u1, u2 = build_basis(v2)
+    
+    origin = np.array([
+    0.,
+    0.,
+    0.
+    ])
     screen = {
-    "origin": np.array([0.,0.,0.]),
+    "origin": origin,
     "normal": v2,
     "u1": u1,
     "u2": u2

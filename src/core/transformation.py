@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #from .mire import Mire
 #from .observation import Observation
+=======
+from src.core.mire import Mire
+from src.core.observation import Observation
+>>>>>>> d23e5b5 (Plusieurs modifs liés à generer.py et le nouveau fichier compare2.py maintenant les commandes à exécuter sont python generer.py forme nb_pts et python -m src.core.compare2)
 from math import *
 
 import numpy as np

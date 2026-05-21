@@ -1,6 +1,6 @@
 import numpy as np
-from .geometry import perpendicular_vector
-from .observation import Observation
+from src.core.geometry import perpendicular_vector
+from src.core.observation import Observation
 
 """ def project_mire_to_plane(mire, v):
     
