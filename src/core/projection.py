@@ -2,6 +2,7 @@ import numpy as np
 from src.core.geometry import perpendicular_vector
 from src.core.observation import Observation
 
+
 def project_pt_to_plane(pt, screen):
     """
     Projection orthogonale d'un point 3D sur le plan écran.
