@@ -1,4 +1,4 @@
-from src.core import Mire
+from src.core.mire import Mire
 import src.core.generation as gen 
 import src.core.projection as proj
 from src.core.geometry import build_basis

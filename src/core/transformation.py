@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+from src.core.mire import Mire
+from src.core.observation import Observation
+>>>>>>> 722084b (My changes)
 from math import *
 import numpy as np
 
