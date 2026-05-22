@@ -1,8 +1,12 @@
 
+import numpy as np
+from src.core.geometry import perpendicular_vector
+from src.core.observation import Observation
+
+
 def project_mire_to_plane(mire, v):
     
-    Projette une mire 3D sur un plan et renvoie une Observation indexée.
-    
+    """Projette une mire 3D sur un plan et renvoie une Observation indexée."""
 
     n = len(mire.points)
 
