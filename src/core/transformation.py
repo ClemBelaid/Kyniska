@@ -1,10 +1,5 @@
-from .mire import Mire
-from .observation import Observation
 from math import *
-
 import numpy as np
-import itertools
-
 
 def calcul_matrice_rotation(v, angle):
     """
