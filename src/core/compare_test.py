@@ -27,7 +27,7 @@ SAVE_GIF = False
 data_x = 50 * np.cos(t)
 data_y = 50 * np.sin(t)
 data_z = 10 * t"""
-mire = Mire.load_json("newMire")
+mire = Mire.load_json("Mire_tr") #en principe
 obs_ref = Observation.load_json("obs_ref")
 obs_pts = obs_ref.points
 
