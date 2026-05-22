@@ -103,6 +103,7 @@ def visualiser_3D(mire_json, ecran_json, T_M):
     ax.set_zlim3d(-50, 150)
     ax.legend()
 
+
     #Gestion de l'état d'animation et de rotation caméra
     auto_rotate = False
 
@@ -171,3 +172,4 @@ def visualiser_3D(mire_json, ecran_json, T_M):
 
 if __name__ == '__main__':
     visualiser_3D(MIRE_PATH, OBS_PATH, T_M_GENERER)
+>>>>>>> 719d8ebcc454324eb6154e8e3cdbe68c64dfc271
