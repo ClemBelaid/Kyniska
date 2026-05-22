@@ -53,9 +53,10 @@ obs_3d = np.array([
     screen["origin"] + p[0]*u1 + p[1]*u2
     for p in obs_pts
 ]) 
-(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
-(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
-pts =  mire_2.points
+#(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
+#(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
+pts =  mire.points
+
 
 
 data = np.zeros((360, len(pts), 3), dtype=float)
@@ -66,7 +67,10 @@ data_proj = np.zeros((360,len(pts),3),dtype=float)
     [1, 3, 4],   # point 1
     [1, 2, 2]    # point 2
 ])"""
-ym_xm = (ym2_rote - xm2_rote)
+#ym_xm = (ym2_rote - xm2_rote)
+ym_xm = mire.points[0] - mire.points[1]
+xm2_rote=mire.points[0]
+ym2_rote=mire.points[0]
 
 #Rotation autour de Z
 for i in range(360):
