@@ -62,8 +62,8 @@ if __name__ == "__main__":
     ])"""
 
     lst = {}
-    for id, x_mire in m.pts.items():
-        x_mire_homo= np.array(x_mire[0],x_mire[1],x_mire[2],1.)
+    for id, x_mire in vrMire.pts.items():
+        x_mire_homo = np.array([x_mire[0], x_mire[1], x_mire[2], 1.0])
         x_mire_trs_homo1= mat @ x_mire_homo
         #x_mire_trs_homo2= mat2 @  x_mire_trs_homo1
         lst[id] = x_mire_trs_homo1[:3].tolist()
