@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from core import Observation
-=======
 from src.core import Observation
->>>>>>> origin/main
 import numpy as np 
 import sys
 

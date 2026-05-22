@@ -1,6 +1,6 @@
-from .mire import Mire
+from .src.core.mire import Mire
 from scipy.spatial import ConvexHull
-from .observation import Observation
+from .src.core.observation import Observation
 import cv2 
 import numpy as np
 import itertools
