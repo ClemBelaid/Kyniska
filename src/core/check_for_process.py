@@ -1,8 +1,8 @@
 import numpy as np
 import random
-from .observation import Observation 
-from .mire import Mire
-from .projection import project_pt_to_plane
+from src.core.observation import Observation 
+from src.core.mire import Mire
+from src.core.projection import project_pt_to_plane
 
 
 def check_observ(obs_v, obs_sim):
@@ -45,8 +45,8 @@ def check_couple(mire,screen,xo,yo,lambda_):
         xm = mire.pts[id1]
         ym = mire.pts[id2]
 
-        xp = project_pt_to_plane(xm, screen["normal"])
-        yp = project_pt_to_plane(ym, screen["normal"])
+        xp = project_pt_to_plane(xm, screen)
+        yp = project_pt_to_plane(ym, screen)
 
         d = np.linalg.norm(yp - xp)
 

@@ -23,17 +23,17 @@ if __name__ == "__main__":
     if(sys.argv[1] == "pave"):
         m = gen.generer_cube(nb_pts)
     
-    if(sys.argv[1] == "cone tronque"):
+    if(sys.argv[1] == "cone_tronque"):
         m = gen.generer_cone_tronque(nb_pts)
     
-    if(sys.argv[1] == "cone tronque creux"):
+    if(sys.argv[1] == "cone_tronque_creux"):
         m = gen.generer_cone_tronque_creux(nb_pts)
     
     m.save_json("newMire")
 
     # Pour l'instant je dis que a1 = 0°, a2 = 30°, a3 = -30°
     #v1 = np.array([0,0,1])
-    v2 = np.array([0, 0.5, np.sqrt(3)/2])
+    v2 = np.array([0, 0, 1])
     #v3 = np.array([0, -0.5, np.sqrt(3)/2])
 
 
@@ -42,29 +42,35 @@ if __name__ == "__main__":
     # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
     # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
-    tht = np.pi/18 # angle de 10 degrés
+    tht = np.pi/32 # angle de 10 degrés
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
     
-    """mat = np.array([
+    mat = np.array([
     [np.cos(phi), -np.sin(phi), 0, 20],
     [np.sin(phi),  np.cos(phi), 0, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 1]
-    ])"""
+    ])
     u1, u2 = build_basis(v2)
+    
+    origin = np.array([
+    0.,
+    0.,
+    0.
+    ])
     screen = {
-    "origin": np.array([0.,0.,0.]),
+    "origin": origin,
     "normal": v2,
     "u1": u1,
     "u2": u2
     }
-    mat = np.array([
+    """mat = np.array([
     [1, 0, 0, 0],
     [0,1, 0, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 1]
-    ])
+    ])"""
 
     lst = {}
     for id, x_mire in m.pts.items():

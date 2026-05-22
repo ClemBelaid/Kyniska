@@ -1,5 +1,5 @@
-#from .mire import Mire
-#from .observation import Observation
+from .mire import Mire
+from .observation import Observation
 from math import *
 
 import numpy as np

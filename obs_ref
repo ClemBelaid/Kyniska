@@ -3,6 +3,8 @@
     "points": [
         {
             "id": 0,
+<<<<<<< HEAD
+<<<<<<< HEAD
             "x": -86.47656638183616,
             "y": -100.54519655506986
         },
@@ -40,11 +42,44 @@
             "id": 7,
             "x": -89.51869427397173,
             "y": -99.64353184377873
+=======
+            "x": -99.51096995646817,
+            "y": -99.83555535781139
+=======
+            "x": -109.81072806047042,
+            "y": 69.11790648863158
+>>>>>>> 41be52a (Beaucoup de modifs en particulier le fichier compare2.py documentation à venir)
+        },
+        {
+            "id": 1,
+            "x": -109.08940466405065,
+            "y": 70.33270594528497
+        },
+        {
+            "id": 2,
+            "x": -109.34382381259698,
+            "y": 69.14904617468618
+        },
+        {
+            "id": 3,
+            "x": 90.82628451613186,
+            "y": 88.96003791091508
+        },
+        {
+            "id": 4,
+<<<<<<< HEAD
+            "x": -100.41230492804138,
+            "y": -99.6241397043015
+>>>>>>> d23e5b5 (Plusieurs modifs liés à generer.py et le nouveau fichier compare2.py maintenant les commandes à exécuter sont python generer.py forme nb_pts et python -m src.core.compare2)
+=======
+            "x": 109.53798400873197,
+            "y": -109.25525852695056
+>>>>>>> 41be52a (Beaucoup de modifs en particulier le fichier compare2.py documentation à venir)
         }
     ],
     "vecteur": [
-        0.0,
-        0.5,
-        0.8660254037844386
+        0,
+        0,
+        1
     ]
 }
