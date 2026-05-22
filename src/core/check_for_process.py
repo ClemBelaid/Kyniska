@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import itertools
 from src.core.observation import Observation 
 from src.core.mire import Mire
 from src.core.projection import project_pt_to_plane
@@ -35,37 +36,22 @@ def check_observ(obs_v, obs_sim):
     return rms
 
 def check_couple(mire,screen,xo,yo,lambda_):
-    best_score = np.inf
-    best_pair = None
-    
-    for _ in range(100):
+    """ Remarque : éventuellement cette fonction sera supprimée pour être intégrée directement dans la grosse boucle for
+    qui englobera tout le processus (on itère ce processus sur chaque couple de billes de la mire)"""
 
-        id1, id2 = random.sample(mire.ids.tolist(), 2)
+    # Distance des points "témoins" y0 et x0
+    d_obs = np.linalg.norm(np.array(yo - xo))
 
-        xm = mire.pts[id1]
-        ym = mire.pts[id2]
+    if np.linalg.norm(yo - xo) < 1e-8: # Erreur sur y0 et x0
+        return None
 
-        xp = project_pt_to_plane(xm, screen)
-        yp = project_pt_to_plane(ym, screen)
-
-        d = np.linalg.norm(yp - xp)
-
-        if d < 1e-8:
+    for (id1,id2) in itertools.combinations(mire.ids.tolist(), 2):
+        xm = np.array(mire.pts[id1])
+        ym = np.array(mire.pts[id2])
+        dm = np.linalg.norm(ym - xm)
+        if dm < d_obs:
             continue
+        else:
+            break
 
-        d_obs = np.linalg.norm(yo - xo)
-        if np.linalg.norm(yo - xo) < 1e-8:
-            continue
-
-        u_obs = (yo - xo) / np.linalg.norm(yo - xo)
-        u_mire = (yp - xp) / np.linalg.norm(yp - xp)
-
-        score = abs(d - d_obs) / d_obs - lambda_ * np.dot(u_mire, u_obs)
-
-        if score < best_score:
-            best_score = score
-            best_pair = (id1, id2)
-    id1, id2 = best_pair
-    xm = mire.pts[id1]
-    ym = mire.pts[id2]
     return (xm,ym)

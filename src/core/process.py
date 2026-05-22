@@ -45,8 +45,6 @@ def frst_process(mire,screen,xo,yo):
         x_mire_trs_homo= mat_trs @ x_mire_h
         lst_xmire_trs[id] = x_mire_trs_homo[:3].tolist()
 
-    mire.draw()
-    plt.show()
     #On considère maintenant notre ym_prim translaté ayant fixé la projection de xm sur xo=xp
     # Il faut récupérer xm et ym transformés par la translation et la rotation  car il nous serviront pour le second_process 
     ###################################################################
