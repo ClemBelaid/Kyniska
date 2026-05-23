@@ -9,6 +9,7 @@ from src.core.projection import project_pt_to_plane
 from scipy.spatial.distance import cdist
 from src.core.process import scd_process
 from src.core.process import thd_process
+from src.core.process import app_proc
 from src.core.transformation import calcul_matrice_rotation
 from src.core.mire import Mire 
 from src.core.observation import Observation 
@@ -23,7 +24,7 @@ SAVE_GIF = False
 #--------------------------------
 
 
-mire = Mire.load_json("Mire_tr") #notre mire non roté et l'algo va déterminer cette rotation qui colle avec les observations de obs_ref
+mire = Mire.load_json("newMire") #notre mire non roté et l'algo va déterminer cette rotation qui colle avec les observations de obs_ref
 obs_ref = Observation.load_json("obs_ref")
 obs_pts = obs_ref.points
 
@@ -55,6 +56,7 @@ obs_3d = np.array([
 ]) 
 #(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
 #(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
+(bst_mire, bst_xm , bst_ym , bst_score , bst_agl ) = app_proc(mire,obs_ref,screen,obs_ref.points[0],obs_ref.points[1])
 
 pts =  mire.points
 
@@ -70,9 +72,9 @@ data_proj = np.zeros((360,len(pts),3),dtype=float)
 
 ########################################"
 #Les pts pour l'axe de rotation fixés et ym_xm pour la construction de la matrice de rotation 
-ym_xm = mire.points[0] - mire.points[1]
-xm2_rote=mire.points[0]
-ym2_rote=mire.points[1]
+ym_xm = bst_ym - bst_xm
+xm2_rote=bst_xm
+ym2_rote=bst_ym
 
 ########################################################
 
@@ -104,7 +106,7 @@ for i in range(360):
 
 ###########################################################
 #Boucle pour les scores 
-scores = []
+"""scores = []
 
 for i in range(360):
 
@@ -113,12 +115,13 @@ for i in range(360):
     # erreur du pire point
     score = np.max(err)
 
-    scores.append(score)
+    scores.append(score)"""
 
-best_frame = np.argmin(scores)
+best_frame = bst_agl
 
 print("Best frame:", best_frame)
-print("Best score:", scores[best_frame])
+#print("Best score:", scores[best_frame]) 
+print("Best score:", bst_score)
 
 #############################################################
 
