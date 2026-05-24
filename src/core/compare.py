@@ -106,20 +106,20 @@ for i in range(360):
 
 ###########################################################
 #Boucle pour les scores 
-"""scores = []
+#scores = []
 
-for i in range(360):
+"""for i in range(360):
 
     err = np.linalg.norm(data_proj[i] - obs_3d, axis=1)
 
     # erreur du pire point
     score = np.max(err)
 
-    scores.append(score)"""
+    scores.append(score)""" 
 
-best_frame = bst_agl
+best_frame = int(np.rad2deg(bst_agl)) % 360
 
-print("Best frame:", best_frame)
+print("Best angle  :", best_frame)
 #print("Best score:", scores[best_frame]) 
 print("Best score:", bst_score)
 
@@ -326,7 +326,7 @@ def animate(in_angle: int):
   scatter._offsets3d = (x, y, z)
   scatter_proj._offsets3d = (x_proj, y_proj, z_proj)
  
-  if abs(in_angle - best_frame) <= 2:
+  if in_angle == best_frame:
     scatter_proj.set_edgecolor('green')
   else:
     scatter_proj.set_edgecolor('blue')
