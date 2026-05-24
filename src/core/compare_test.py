@@ -13,6 +13,8 @@ from src.core.transformation import calcul_matrice_rotation
 from src.core.mire import Mire 
 from src.core.observation import Observation 
 import numpy as np
+from matplotlib.widgets import Button
+from src.core.matching import labeliser_points
 
 
 # Save animation to GIF?
@@ -107,6 +109,13 @@ best_frame = np.argmin(scores)
 print("Best frame:", best_frame)
 print("Best score:", scores[best_frame])
 # Sécurise toute l'animation au-dessus de l'écran
+
+print("\n--- Lancement de la labélisation ---")
+meilleurs_points_projetes = data_proj[best_frame] 
+labels_finaux = labeliser_points(meilleurs_points_projetes, obs_3d)
+print("Correspondances trouvées :", labels_finaux)
+print("==========================================\n")
+
 
 margin = 20
 
@@ -211,7 +220,21 @@ axes.plot_surface(
     alpha=0.15,
     edgecolor='black'
     )
+#AJOUT VISUEL : Les orbites de trajectoire..
+for j in range(len(pts)):
+    axes.plot(
+        data[:, j, 0], 
+        data[:, j, 1], 
+        data[:, j, 2], 
+        color='deepskyblue', 
+        alpha=0.3, 
+        linestyle='-',
+        linewidth=1
+    )
 
+#--------------------------------
+# Scatter data
+#--------------------------------
 
 #--------------------------------
 # Scatter data
@@ -243,6 +266,20 @@ proj_lines = []
 #--------------------------------
 # Animation function
 #--------------------------------
+
+
+#AJOUT VISUEL : Le Bouton de caméra..
+auto_rotate_cam = False
+ax_btn = plt.axes([0.1, 0.05, 0.25, 0.06])
+btn = Button(ax_btn, 'Camera Auto: OFF', color='lightgray', hovercolor='skyblue')
+
+def toggle_rotation(event):
+    global auto_rotate_cam
+    auto_rotate_cam = not auto_rotate_cam
+    btn.label.set_text(f"Camera Auto: {'ON' if auto_rotate_cam else 'OFF'}")
+    figure.canvas.draw_idle()
+btn.on_clicked(toggle_rotation)
+
 
 def animate(in_angle: int):
   """
@@ -322,6 +359,10 @@ def animate(in_angle: int):
     alpha = 1.0 if is_best else 0.5
     )
     proj_lines.append(ln[0])
+    
+#AJOUT VISUEL : Rotation de la caméra..
+  if auto_rotate_cam:
+    axes.view_init(elev=50, azim=in_angle)
 
   return scatter, scatter_proj
 #--------------------------------
