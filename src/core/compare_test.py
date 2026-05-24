@@ -70,7 +70,7 @@ data_proj = np.zeros((360,len(pts),3),dtype=float)
 #ym_xm = (ym2_rote - xm2_rote)
 ym_xm = mire.points[0] - mire.points[1]
 xm2_rote=mire.points[0]
-ym2_rote=mire.points[0]
+ym2_rote=mire.points[1]
 
 #Rotation autour de Z
 for i in range(360):
