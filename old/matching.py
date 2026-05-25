@@ -28,12 +28,21 @@ def labeliser_points(points_projetes: np.ndarray, points_observes: list) -> dict
     """
     labels = {}
     
+    print(points_projetes)
+    print(" ___ ")
+    print(points_observes)
+
     # 1. Calcul de toutes les distances d'un coup avec scipy
     distances = cdist(points_projetes, points_observes)
+    print("____")
+    print(distances)
     
     # 2. Association au plus proche
     for i in range(len(points_projetes)):
         index_plus_proche = int(np.argmin(distances[i]))
+        print("i = ", i)
+        print("distances(i] = ", distances[i])
+        print("index_plus_proches = ", index_plus_proche)
         labels[i] = index_plus_proche
         
     return labels

@@ -5,7 +5,6 @@ from src.core.observation import Observation
 from src.core.mire import Mire
 from src.core.projection import project_pt_to_plane
 
-
 def check_observ(obs_v, obs_sim):
     """
     Compare deux observations et retourne le RMS des distances

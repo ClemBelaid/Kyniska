@@ -31,14 +31,17 @@ if __name__ == "__main__":
     # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
     # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
-    tht = np.pi/32 # angle de 10 degrés
+    tht = np.pi/4 # angle de 30 degrés
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
     
+    axis = vrMire.points[0] - vrMire.points[1]
+    mat_rot = calcul_matrice_rotation(axis, tht)
+
     mat = np.array([
-    [np.cos(phi), -np.sin(phi), 0, 20],
-    [np.sin(phi),  np.cos(phi), 0, 0],
-    [0, 0, 1, 0],
+    [mat_rot[0][0], mat_rot[0][1], mat_rot[0][2], 0],
+    [mat_rot[1][0], mat_rot[1][1], mat_rot[1][2], 0],
+    [mat_rot[2][0], mat_rot[2][1], mat_rot[2][2], 0],
     [0, 0, 0, 1]
     ])
     u1, u2 = build_basis(v2)
