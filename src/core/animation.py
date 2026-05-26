@@ -277,3 +277,5 @@ def animate_rotation(mire, obs_3d, screen, xm, ym, best_frame):
     )
 
     plt.show()
+
+    return data, data_proj
