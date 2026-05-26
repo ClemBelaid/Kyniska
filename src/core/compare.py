@@ -45,10 +45,14 @@ obs_3d = np.array([
     for p in obs_pts
 ]) 
 
+<<<<<<< HEAD
 # Calcul du meilleur angle par rotation de la mire
 xo =  obs_ref.points[0]
 yo = obs_ref.points[1]
 (bst_mire, bst_xm, bst_ym, bst_score, bst_agl) = app_proc(mire, obs_ref, screen, xo, yo)
+=======
+pts =  bst_mire.points
+>>>>>>> afa77c6 (Rien de nouveau)
 
 # Animation de la rotation de la mire
 # Attention : il faut donner comme argument la mire initiale, pas bst_mire !

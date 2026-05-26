@@ -30,7 +30,7 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)
     #On applique alors la translation de vecteur xpxo à la mire 
     xp_xo = xo - xp 
-    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 50*screen["normal"]
+    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 10*screen["normal"]
     mat_trs = np.array([
     [1,0,0,trs_3d[0]],
     [0,1,0,trs_3d[1]],
@@ -66,8 +66,14 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     
     ##################################################
     
-    u = yo_xo_3d / np.linalg.norm(yo_xo_3d)
-    v= ypp_xo_3d / np.linalg.norm(ypp_xo_3d)
+    norm_u = np.linalg.norm(yo_xo_3d)
+    norm_v = np.linalg.norm(ypp_xo_3d)
+
+    if norm_u < 1e-8 or norm_v < 1e-8:
+        raise ValueError("Vecteur nul dans frst_process")
+
+    u = yo_xo_3d / norm_u
+    v = ypp_xo_3d / norm_v
     u_xmxo = np.cross(u, v)
     cos_a = np.clip(np.dot(u, v), -1.0, 1.0)
     sin_a = np.linalg.norm(u_xmxo)
@@ -109,8 +115,14 @@ def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
     yo_xo = yo - xo #un vecteur 2D qu'il faut mettre en 3D avec le repère (u1 ,u2 ) de l'écran 
    
     vect = yo_xo[0]*screen["u1"] + yo_xo[1]*screen["u2"]
-    u = ym_xm/ np.linalg.norm(ym_xm)
-    v = vect / np.linalg.norm(vect)
+    norm_u = np.linalg.norm(ym_xm)
+    norm_v = np.linalg.norm(vect)
+
+    if norm_u < 1e-8 or norm_v < 1e-8:
+        raise ValueError("Vecteur nul dans scd_process")
+
+    u = ym_xm / norm_u
+    v = vect / norm_v
     #vecteur ortho au plan P vertical contenant tous ces points et autour duquel 
     #la rotation doit se faire
     axis = np.cross(u, v)
@@ -152,11 +164,21 @@ def thd_process(mire,screen,obs,xm,ym,N):
     eps = 1e-4
 
     best_rms = np.inf
+<<<<<<< HEAD
     best_mire = None
     best_angle = None
 
     for agl in angles:
         axis = ym_xm / np.linalg.norm(ym_xm)
+=======
+    #best_mire = None
+    best_angle = None
+    axis = ym_xm / np.linalg.norm(ym_xm)
+    for agl in angles:
+
+
+        
+>>>>>>> afa77c6 (Rien de nouveau)
         mR = calcul_matrice_rotation(axis, agl)
 
         lst_pt = {}
@@ -179,14 +201,24 @@ def thd_process(mire,screen,obs,xm,ym,N):
 
         if rms < best_rms:
             best_rms = rms
+<<<<<<< HEAD
             best_mire = new_mire
+=======
+            #best_mire = new_mire
+>>>>>>> afa77c6 (Rien de nouveau)
             best_angle = agl
 
         if rms < eps:
             break
 
+<<<<<<< HEAD
     return (best_mire, best_rms, best_angle)
            
+=======
+    return  best_rms, best_angle
+    """( best_mire,"""
+    """, best_angle)"""
+>>>>>>> afa77c6 (Rien de nouveau)
 
 def app_proc(mire,obs,screen,xo,yo): 
         
@@ -256,6 +288,18 @@ def app_proc(mire,obs,screen,xo,yo):
                     360
                 )
 
+<<<<<<< HEAD
+=======
+                # meilleur résultat
+                if score < best_score:
+
+                    best_score = score
+                    best_agl = agl
+                    best_mire = mire2
+                    best_xm = xm2
+                    best_ym = ym2
+
+>>>>>>> afa77c6 (Rien de nouveau)
         except Exception as e:
             print("Erreur process 3 sur le couple :", id1, id2, e)
             continue
