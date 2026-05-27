@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
     # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
     # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
-    tht = np.pi/4 # angle de 10 degrés
+    tht = np.pi/6 # angle de 10 degrés
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
     axis = vrMire.points[2] - vrMire.points[4]
@@ -85,10 +85,11 @@ if __name__ == "__main__":
     points = list(lst_pts_tr.values())
     ids = list(lst_pts_tr.keys())
     # mire originale sauvegardée
-    vrMire.save_json("Mire_tr")
+    vrMire.save_json("Mire_init")
 
     # mire tournée utilisée seulement pour créer les observations
     mir_rot = Mire(points, ids=ids, alignes=vrMire.alignes)
+    mir_rot.save_json("Mire_rot")
 
     obs_ref = proj.project_mire_to_plane(mir_rot, screen)
     obs_ref.save_json("obs_ref")
