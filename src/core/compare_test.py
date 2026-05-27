@@ -24,17 +24,14 @@ SAVE_GIF = False
 # 3D scene -- Data
 #--------------------------------
 
-<<<<<<< HEAD
+
 # My 3D scene data
 """t = np.linspace(0, 4*np.pi, 100)
 data_x = 50 * np.cos(t)
 data_y = 50 * np.sin(t)
 data_z = 10 * t"""
 mire = Mire.load_json("newMire") # avant : "mire_tr"
-=======
 
-mire = Mire.load_json("newMire") #notre mire non roté et l'algo va déterminer cette rotation qui colle avec les observations de obs_ref
->>>>>>> afa77c6 (Rien de nouveau)
 obs_ref = Observation.load_json("obs_ref")
 obs_pts = obs_ref.points
 
@@ -60,19 +57,11 @@ obs_3d = np.array([
     screen["origin"] + p[0]*u1 + p[1]*u2
     for p in obs_pts
 ]) 
-<<<<<<< HEAD
+
 #(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
 #(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
 pts =  mire.points
-=======
-xm = mire.points[3]
-ym= mire.points[4]
-(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,xm,ym,obs_ref.points[3],obs_ref.points[4])
-(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[3],obs_ref.points[4])
-bsrms , bsagl = thd_process(mire_2,screen,obs_ref,xm2_rote,ym2_rote,360)
 
-pts =  mire_2.points
->>>>>>> afa77c6 (Rien de nouveau)
 
 
 
@@ -80,19 +69,13 @@ data = np.zeros((360, len(pts), 3), dtype=float)
 data_proj = np.zeros((360,len(pts),3),dtype=float)
 
 #ym_xm = (ym2_rote - xm2_rote)
-<<<<<<< HEAD
+
 ym_xm = mire.points[0] - mire.points[1]
 xm2_rote=mire.points[0]
 ym2_rote=mire.points[1]
-=======
 
-########################################"
-#Les pts pour l'axe de rotation fixés et ym_xm pour la construction de la matrice de rotation 
 
-"""xm2_rote=mire.points[2]
-ym2_rote=mire.points[5]"""
-ym_xm = ym2_rote - xm2_rote
->>>>>>> afa77c6 (Rien de nouveau)
+
 
 #Rotation autour de Z
 for i in range(360):
@@ -108,15 +91,14 @@ for i in range(360):
         data[i, j] = pt_rot
         data_proj[i,j]=pt_p3D
 
-<<<<<<< HEAD
+
 scores = []
 =======
 #########################################################
 
 ###########################################################
 #Boucle pour les scores 
-"""scores = []
->>>>>>> afa77c6 (Rien de nouveau)
+
 
 for i in range(360):
 
@@ -127,21 +109,11 @@ for i in range(360):
 
     scores.append(score)
 
-<<<<<<< HEAD
 best_frame = np.argmin(scores)
 
 print("Best angle:", best_frame) # Ecrire best_frame/np.pi*180 pour avoir l'angle en degrés
 print("Best score:", scores[best_frame])
-=======
-best_frame = np.argmin(scores)"""
-best_frame = int(np.rad2deg(bsagl)) % 360
-print("Best frame:", best_frame)
-print("Best score:", bsrms)
 
-#############################################################
-
-#############################################################
->>>>>>> afa77c6 (Rien de nouveau)
 # Sécurise toute l'animation au-dessus de l'écran
 
 print("\n--- Lancement de la labélisation ---")
