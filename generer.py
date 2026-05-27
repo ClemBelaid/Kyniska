@@ -1,106 +1,118 @@
 from src.core.mire import Mire
-import src.core.generation as gen 
-import src.core.projection as proj
-from src.core.geometry import build_basis
+from src.core.generation import (
+    generer_cube,
+    generer_cone_tronque,
+    generer_cone_tronque_creux
+)
+ 
+#import src.core.projection as proj
+#from src.core.geometry import build_basis
 import numpy as np
 import sys
 
-from src.core.transformation import calcul_matrice_rotation
+#from src.core.transformation import calcul_matrice_rotation
 
 if __name__ == "__main__":
     argc = len(sys.argv)
     if argc == 1 :
-        print("Usage: program <vrai_mire.json> <alpha> <beta> <gamma> \n"
-              " - <vrai_mire.json> : le json de la vrai mire faite manuellement }\n",
+        print("Usage: generation + sauvegarde de la mire"
+              "program <nom_mire> <nb_billes > \n"
+              " - <nom_Mire> : la forme qu'on veut de la mire }\n",
               file=sys.stderr)
         sys.exit(1)
-
- 
     
+    """v2 = np.array([0, 0, 1])
+    
+    u1, u2 = build_basis(v2)
+    
+    origin = np.array([
+        0.,
+        0.,
+        0.
+        ])
+    screen = {
+        "origin": origin,
+        "normal": v2,
+        "u1": u1,
+        "u2": u2
+        }"""
+
+    if argc == 3 :
+        np.random.seed(42)
+        nom_mire = sys.argv[1]
+        nb_billes = int(sys.argv[2])
+        a, b, c = np.random.uniform(
+        -np.pi/6,
+        np.pi/6,
+        3
+        )
+
+        if nom_mire == "cube":
+
+            vrMire = generer_cube(
+            nb_billes=nb_billes,
+            largeur=200,
+            longueur=200,
+            hauteur=200
+            )
+
+        elif nom_mire == "cone_tronque":
+
+            vrMire = generer_cone_tronque(
+            nb_billes=nb_billes,
+            rayon_base=100,
+            rayon_sommet=40,
+            hauteur=250
+            )
+
+        elif nom_mire == "cone_tronque_creux":
+
+            vrMire = generer_cone_tronque_creux(
+            nb_billes=nb_billes,
+            rayon_base=100,
+            rayon_sommet=40,
+            hauteur=250
+            )
+        
+        vrMire.save_json("vrMire")
+        #vrMire = Mire.load_json(sys.argv[1])
+        #a = np.radians(float(sys.argv[2]))
+        #b = np.radians(float(sys.argv[3]))
+        #c = np.radians(float(sys.argv[4]))
 
     
-    vrMire = Mire.load_json(sys.argv[1])
-    a = np.radians(float(sys.argv[2]))
-    b = np.radians(float(sys.argv[3]))
-    c = np.radians(float(sys.argv[4]))
-
-    # Pour l'instant je dis que a1 = 0°, a2 = 30°, a3 = -30°
-    #v1 = np.array([0,0,1])
-    v2 = np.array([0, 0, 1])
-    #v3 = np.array([0, -0.5, np.sqrt(3)/2])
-
-
-    # En fait, il faudrait créer 6 projections :
-    # Une vérité-terrain (GT) + une projection "anonyme" pour chaque angle/vecteur de porjection
-    # Pour la GT, il faut enregistrer directement les identifiants de chaque point au moment de les projeter
-    # Et pour les projections "anonymes" il faut enregistrer des IDs "random"
-    # ou bien négatifs (pour se souvenir qu'ils représentent une valeur fausse/indéterminée)
-    #tht = np.pi/6 # angle de 10 degrés
-    #phi = tht # peu importe c'est pour tester 
-    #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
-    """axis = vrMire.points[2] - vrMire.points[5]
-    axis = axis / np.linalg.norm(axis)
-    mat_rot = calcul_matrice_rotation(axis , tht)
-    xm = vrMire.points[2]"""
-    """mat_rot = np.array([
-    [np.cos(phi), -np.sin(phi), 0, 0],
-    [np.sin(phi),  np.cos(phi), 0, 0],
-    [0, 0, 1, 0],
-    [0, 0, 0, 1]
-    ])"""
-    mat_rot = np.array([
+  
+        """mat_rot = np.array([
     [np.cos(b)*np.cos(c), -np.cos(b)*np.sin(c), np.sin(b), 2],
     [np.cos(a)*np.sin(c) + np.sin(a)*np.sin(b)*np.cos(c),  np.cos(a)*np.cos(c)-np.sin(a)*np.sin(b)*np.sin(c), -np.sin(a)*np.cos(b), 1],
     [np.sin(a)*np.sin(c)-np.cos(a)*np.sin(b)*np.cos(c), np.sin(a)*np.cos(c)+np.cos(a)*np.sin(b)*np.sin(c), np.cos(a)*np.cos(b), 2],
     [0, 0, 0, 1]
-    ])
-    """mat_tr = np.array([
-    [1,0, 0, 0],
-    [ 0 ,1, 0, 0],
-    [0, 0, 1,20 ],
-    [0, 0, 0, 1]
-    ])"""
-    u1, u2 = build_basis(v2)
+        ])"""
     
-    origin = np.array([
-    0.,
-    0.,
-    0.
-    ])
-    screen = {
-    "origin": origin,
-    "normal": v2,
-    "u1": u1,
-    "u2": u2
-    }
-    """mat = np.array([
-    [1, 0, 0, 0],
-    [0,1, 0, 0],
-    [0, 0, 1, 0],
-    [0, 0, 0, 1]
-    ])"""
+   
 
-    lst_pts_tr = {}
-    lst_pts_rote = {}
+        """lst_pts_tr = {}
+    
 
-    for id, x_mire in vrMire.pts.items():
-        #1ère transformation : rotation selon l'axe ym_xm
-        #x_vec = np.array(x_mire)
-        #x_rot = mat_rot @ (x_vec - xm) + xm 
-        #lst_pts_rote[id] = x_rot.tolist()
-        x_rot_h = np.array([x_mire[0],x_mire[1],x_mire[2],1.0])
-        x_tr_h= mat_rot @ x_rot_h
-        lst_pts_tr[id] = x_tr_h[:3].tolist()
+        for id, x_mire in vrMire.pts.items():
         
-    points = list(lst_pts_tr.values())
-    ids = list(lst_pts_tr.keys())
-    # mire originale sauvegardée
-    vrMire.save_json("Mire_tr")
+            x_rot_h = np.array([x_mire[0],x_mire[1],x_mire[2],1.0])
+            x_tr_h= mat_rot @ x_rot_h
+            lst_pts_tr[id] = x_tr_h[:3].tolist()
+        
+        points = list(lst_pts_tr.values())
+        ids = list(lst_pts_tr.keys())"""
+        # mire originale sauvegardée
+       
 
-    # mire tournée utilisée seulement pour créer les observations
-    mir_rot = Mire(points, ids=ids, alignes=vrMire.alignes)
+        # mire tournée utilisée seulement pour créer les observations
+        #mir_rot = Mire(points, ids=ids, alignes=vrMire.alignes)
 
-    obs_ref = proj.project_mire_to_plane(mir_rot, screen)
-    obs_ref.save_json("obs_ref")
+        #obs_ref = proj.project_mire_to_plane(mir_rot, screen)
+        #obs_ref.save_json("obs_ref")
     
+    """if argc == 3 :
+       
+       vrMire = Mire.load_json(sys.argv[1]) 
+       nb_billes= int (sys.argv[2])"""
 
