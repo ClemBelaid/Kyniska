@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib as plt
 import random
 import matplotlib.pyplot as plt
-from itertools import combinations
+from itertools import permutations
 from src.core.mire import Mire 
 from src.core.geometry import perpendicular_vector
 from src.core.projection import project_mire_to_plane
@@ -37,7 +37,6 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     [0,0,1,trs_3d[2]],
     [0,0,0,1]
     ])
-    """Le 50 totalement arbitraire juste pourque la mire ne se retrouve collé au plan écran mais bien au dessus de ce plan """
     ################################################
     lst_xmire_trs = {}
     for id, x_mire in mire.pts.items():
@@ -65,26 +64,27 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     ypp_xo_3d = ypp_xo[0]*screen["u1"] + ypp_xo[1]*screen["u2"]
     
     ##################################################
-    
-    norm_u = np.linalg.norm(yo_xo_3d)
-    norm_v = np.linalg.norm(ypp_xo_3d)
+    u = yo_xo_3d / np.linalg.norm(yo_xo_3d)
+    v = ypp_xo_3d / np.linalg.norm(ypp_xo_3d)
 
-    if norm_u < 1e-8 or norm_v < 1e-8:
-        raise ValueError("Vecteur nul dans frst_process")
+    # FIX ORIENTATION (empêche inversion 180°)
+    if np.dot(v, u) < 0:
+        v = -v
+        ypp_xo_3d = -ypp_xo_3d
 
-    u = yo_xo_3d / norm_u
-    v = ypp_xo_3d / norm_v
-    u_xmxo = np.cross(u, v)
-    cos_a = np.clip(np.dot(u, v), -1.0, 1.0)
-    sin_a = np.linalg.norm(u_xmxo)
+    axis = screen["normal"]
+    cos_a = np.clip(np.dot(v, u), -1.0, 1.0)
+    sin_a = np.dot(np.cross(v, u), axis)
+
     a = np.arctan2(sin_a, cos_a)
+    mat_rot = calcul_matrice_rotation(axis, a)
     
-    norm_u = np.linalg.norm(u_xmxo)
-    if norm_u < 1e-8:
-        mat_rot = np.eye(3)
-    else:
-        u_xmxo = u_xmxo / norm_u
-        mat_rot = calcul_matrice_rotation(u_xmxo, a)
+    #norm_u = np.linalg.norm(u_xmxo)
+    #if norm_u < 1e-8:
+    #    mat_rot = np.eye(3)
+    #else:
+    #    u_xmxo = u_xmxo / norm_u
+    #    mat_rot = calcul_matrice_rotation(u_xmxo, a)
 
     ###########################################################
     lst_xmire_fin = {}
@@ -105,53 +105,102 @@ def frst_process(mire, screen, xm, ym, xo, yo):
 
     return (Mire(points, ids=ids, alignes=mire.alignes), xm_rote , ym_rote, lst_xmire_fin)
 
+def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
 
+    # -----------------------------------------
+    # Direction écran xo -> yo remise en 3D
+    # -----------------------------------------
+    yo_xo = yo - xo
 
-def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
-    """Entrées: la mire , le vecteur normal au plan écran ,la liste des points de la mire après le first_process, les points 
-    xm et ym obtenues après translation et rotation  de la mire, xo et yo les points fixés de l'écran
-       Sorties : la mire roté pour que p(ym)=yp soit égale à yo """
+    d = (
+        yo_xo[0] * screen["u1"]
+        + yo_xo[1] * screen["u2"]
+    )
+
+    d = d / np.linalg.norm(d)
+
+    # -----------------------------------------
+    # Axe parallèle à l'écran
+    # et orthogonal à xo->yo
+    # -----------------------------------------
+    n = screen["normal"]
+
+    axis = np.cross(n, d)
+    axis = axis / np.linalg.norm(axis)
+
+    # -----------------------------------------
+    # Recherche du meilleur angle
+    # -----------------------------------------
+    angles = np.linspace(np.pi, 0, 2000)
+
+    best_err = np.inf
+    best_rot = None
+    best_ym = None
+    best_rot_inv = None
+
+    # Calcul de l'angle phi entre le vecteur ym_xm et l'écran
     ym_xm = ym - xm
-    yo_xo = yo - xo #un vecteur 2D qu'il faut mettre en 3D avec le repère (u1 ,u2 ) de l'écran 
-   
-    vect = yo_xo[0]*screen["u1"] + yo_xo[1]*screen["u2"]
-    norm_u = np.linalg.norm(ym_xm)
-    norm_v = np.linalg.norm(vect)
+    sin_phi = ym_xm[2]
+    ym_xm[2] = 0
+    cos_phi = np.linalg.norm(ym_xm)
+    phi = np.arctan2(sin_phi, cos_phi)
 
-    if norm_u < 1e-8 or norm_v < 1e-8:
-        raise ValueError("Vecteur nul dans scd_process")
+    for angle in angles:
+        R = calcul_matrice_rotation(axis, angle)
 
-    u = ym_xm / norm_u
-    v = vect / norm_v
-    #vecteur ortho au plan P vertical contenant tous ces points et autour duquel 
-    #la rotation doit se faire
-    axis = np.cross(u, v)
-    sin_a = np.linalg.norm(axis)
-    cos_a = np.clip(np.dot(u, v), -1.0, 1.0)
-    a = np.arctan2(sin_a, cos_a)
-    if sin_a < 1e-8:
-        mat_rot = np.eye(3)
-    else:
-        axis = axis / sin_a
-        mat_rot = calcul_matrice_rotation(axis, a)
- 
-   
+        ym_rot = R @ (ym - xm) + xm
+
+        proj = project_pt_to_plane(ym_rot, screen)
+
+        err = np.linalg.norm(proj - yo)
+
+        if err < best_err:
+            best_err = err
+            best_rot = R
+            angle_inv = 2*phi + angle
+            best_rot_inv = calcul_matrice_rotation(axis, -angle_inv)
+            best_ym = ym_rot
+            best_ym_inv = best_rot_inv @ (ym - xm) + xm
+
+    # -----------------------------------------
+    # Rotation finale de toute la mire
+    # -----------------------------------------
     lst_fin = {}
-    for id, x_mire in lst_xmr_fin.items():
-         x_mire= np.array(x_mire)
-         x_mire_rote= mat_rot @ (x_mire - xm) + xm
-         lst_fin[id]= x_mire_rote.tolist()
-    ##############################
-    
-    xm_rote= xm
-    ym_rote= mat_rot @ (ym -xm) + xm
- 
-    #################################
+
+    for id, pt in lst_xmr_fin.items():
+
+        pt = np.array(pt)
+        pt_rot = best_rot @ (pt - xm) + xm
+        lst_fin[id] = pt_rot.tolist()
 
     points = list(lst_fin.values())
     ids = list(lst_fin.keys())
 
-    return (Mire(points, ids=ids, alignes=mire.alignes), xm_rote , ym_rote, lst_fin)
+    mire_fin = Mire(
+        points,
+        ids=ids,
+        alignes=mire.alignes
+    )
+
+    lst_fin_inv = {}
+
+    for id, pt in lst_xmr_fin.items():
+
+        pt = np.array(pt)
+        pt_rot_inv = best_rot_inv @ (pt - xm) + xm
+        lst_fin_inv[id] = pt_rot_inv.tolist()
+
+    points_inv = list(lst_fin_inv.values())
+    ids_inv = list(lst_fin_inv.keys())
+
+    mire_fin_inv = Mire(
+        points_inv,
+        ids = ids_inv,
+        alignes = mire.alignes
+    )
+
+    return mire_fin, mire_fin_inv, xm, best_ym, best_ym_inv
+    
 
 def thd_process(mire,screen,obs,xm,ym,N):
     """Entrées: la mire qui a été fixée correctement,le vecteur normal au plan, l'observation originale, 
@@ -164,21 +213,11 @@ def thd_process(mire,screen,obs,xm,ym,N):
     eps = 1e-4
 
     best_rms = np.inf
-<<<<<<< HEAD
     best_mire = None
     best_angle = None
-
-    for agl in angles:
-        axis = ym_xm / np.linalg.norm(ym_xm)
-=======
-    #best_mire = None
-    best_angle = None
     axis = ym_xm / np.linalg.norm(ym_xm)
+
     for agl in angles:
-
-
-        
->>>>>>> afa77c6 (Rien de nouveau)
         mR = calcul_matrice_rotation(axis, agl)
 
         lst_pt = {}
@@ -201,24 +240,14 @@ def thd_process(mire,screen,obs,xm,ym,N):
 
         if rms < best_rms:
             best_rms = rms
-<<<<<<< HEAD
             best_mire = new_mire
-=======
-            #best_mire = new_mire
->>>>>>> afa77c6 (Rien de nouveau)
             best_angle = agl
 
         if rms < eps:
             break
 
-<<<<<<< HEAD
     return (best_mire, best_rms, best_angle)
            
-=======
-    return  best_rms, best_angle
-    """( best_mire,"""
-    """, best_angle)"""
->>>>>>> afa77c6 (Rien de nouveau)
 
 def app_proc(mire,obs,screen,xo,yo): 
         
@@ -230,24 +259,22 @@ def app_proc(mire,obs,screen,xo,yo):
     best_ym = None
     best_agl = 0
 
-    for (id1, xm), (id2, ym) in combinations(pts_items, 2):
+    for (id1, xm), (id2, ym) in permutations(pts_items, 2):
         xm = np.array(xm)
         ym = np.array(ym)
-         # projections des points candidats
-        xp = project_pt_to_plane(xm, screen)
-        yp = project_pt_to_plane(ym, screen)
 
-        d_proj = np.linalg.norm(yp - xp)
+        dist = np.linalg.norm(ym - xm)
 
-        # conditions
-        if d_proj <= 1e-8:
-                continue
+        # conditions CORRIGEES !
+        if dist <= 1e-8:
+            continue
 
-        if d_proj < d_obs:
-                continue
+        if dist < d_obs:
+            continue
 
         try:
                 # process 1
+                #print("entering 1st process")
                 mire1, xm1, ym1, lst1 = frst_process(
                     mire,
                     screen,
@@ -262,8 +289,9 @@ def app_proc(mire,obs,screen,xo,yo):
             continue
 
         try:
+                #print("entering 2nd process")
                 # process 2
-                mire2, xm2, ym2, lst2 = scd_process(
+                mire2, mire2_inv, xm2, ym2, ym2_inv = scd_process(
                     mire1,
                     screen,
                     lst1,
@@ -278,7 +306,8 @@ def app_proc(mire,obs,screen,xo,yo):
             continue
 
         try:
-                # process 3
+                #print("entering 3rd process")
+                # process 3 - positif
                 mire3, score, agl = thd_process(
                     mire2,
                     screen,
@@ -287,9 +316,16 @@ def app_proc(mire,obs,screen,xo,yo):
                     ym2,
                     360
                 )
+                # process 3 - négatif
+                mire3_inv, score_inv, agl_inv = thd_process(
+                    mire2_inv,
+                    screen,
+                    obs,
+                    xm2,
+                    ym2_inv,
+                    360
+                )
 
-<<<<<<< HEAD
-=======
                 # meilleur résultat
                 if score < best_score:
 
@@ -299,7 +335,6 @@ def app_proc(mire,obs,screen,xo,yo):
                     best_xm = xm2
                     best_ym = ym2
 
->>>>>>> afa77c6 (Rien de nouveau)
         except Exception as e:
             print("Erreur process 3 sur le couple :", id1, id2, e)
             continue
@@ -312,4 +347,11 @@ def app_proc(mire,obs,screen,xo,yo):
             best_xm = xm
             best_ym = ym
 
-    return best_mire, best_xm, best_ym, best_score , best_agl
+        if score_inv < best_score:
+            best_score = score_inv
+            best_agl = agl_inv
+            best_mire = mire3_inv
+            best_xm = xm
+            best_ym = ym
+
+    return best_mire, best_xm, best_ym, best_score, best_agl
