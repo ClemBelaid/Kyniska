@@ -20,7 +20,7 @@ def compute_animation_data(mire, screen, xm, ym):
     u1 = screen["u1"]
     u2 = screen["u2"]
 
-    points = mire.pts
+    points = mire.points
 
     data = np.zeros((360, len(points), 3))
     data_proj = np.zeros((360, len(points), 3))
@@ -158,13 +158,14 @@ def draw_screen_surface(axes, screen, mire):
     )
 
 
-def animate_rotation(mire, obs_3d, screen, xm, ym, best_frame):
+def animate_rotation(mire, obs_3d, screen, xm, ym, xo, yo, best_frame):
     """
     Entrée :
         - mire : objet contenant les points de la mire
         - obs_3d : points observés en 3D (scatter rouge)
         - screen : repère de projection (origin, u1, u2)
         - xm, ym : points définissant l’axe de rotation
+        - xo, yo : points de repère choisis dans l'observation de référence
         - best_frame : frame à mettre en évidence
 
     Sortie :
@@ -183,6 +184,10 @@ def animate_rotation(mire, obs_3d, screen, xm, ym, best_frame):
     pt_1 = xm + 3 * (ym - xm)
     pt_2 = xm - 2 * (ym - xm)
 
+    # On reconvertit xo et yo dans le repère écran
+    xo = screen["origin"] + xo[0]*screen["u1"] + xo[1]*screen["u2"]
+    yo = screen["origin"] + yo[0]*screen["u1"] + yo[1]*screen["u2"]
+
     figure = plt.figure(figsize=(10, 10))
 
     axes = plt.axes(projection="3d")
@@ -200,6 +205,35 @@ def animate_rotation(mire, obs_3d, screen, xm, ym, best_frame):
         color='red',
         marker='x',
         s=100
+    )
+
+
+    axes.scatter(
+        xm[0], xm[1], xm[2],
+        color='black',
+        marker='X',
+        s=120,
+    )
+
+    axes.scatter(
+        xo[0], xo[1], xo[2],
+        color='black',
+        marker='o',
+        s=80,
+    )
+
+    axes.scatter(
+        ym[0], ym[1], ym[2],
+        color='green',
+        marker='X',
+        s=120,
+    )
+
+    axes.scatter(
+        yo[0], yo[1], yo[2],
+        color='green',
+        marker='o',
+        s=80,
     )
 
     setup_axes(axes, data, mire)
