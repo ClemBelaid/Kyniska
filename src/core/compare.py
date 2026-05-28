@@ -7,7 +7,11 @@ from src.core.process import app_proc
 from src.core.mire import Mire 
 from src.core.observation import Observation 
 from src.core.animation import animate_rotation
+
 from src.core.labelisation import labeliser_points
+
+from src.core.transformation import calcul_matrice_rotation
+
 import numpy as np
 
 # Save animation to GIF?
@@ -50,6 +54,9 @@ xo =  obs_ref.points[0]
 yo = obs_ref.points[1]
 (bst_mire, bst_xm, bst_ym, bst_score, bst_agl) = app_proc(mire, obs_ref, screen, xo, yo)
 
+pts =  bst_mire.points
+
+
 # Animation de la rotation de la mire
 # Attention : il faut donner comme argument la mire initiale, pas bst_mire !
 (data, data_proj) = animate_rotation(mire, obs_3d, screen, bst_xm, bst_ym, bst_agl)
@@ -68,6 +75,7 @@ meilleurs_points_projetes = data_proj[best_frame]
 
 labels_finaux = labeliser_points(meilleurs_points_projetes, obs_3d)
 print("Correspondances trouvées :", labels_finaux)
+
 
 # Comparaison des erreurs entre la "meilleure mire calculée" et la mire initiale de référence 
 print(bst_mire.points - mire_rot.points)

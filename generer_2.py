@@ -34,10 +34,14 @@ if __name__ == "__main__":
     tht = np.pi/6 # angle de 10 degrés
     phi = tht # peu importe c'est pour tester 
     #mat1 = np.array([[np.cos(tht),0,np.sin(tht),30],[0,1,0,0],[-np.sin(tht),0,np.cos(tht),0],[0,0,0,1]]) # rotation et translation de la mire (frst_process simulé artficiellement)
+<<<<<<< HEAD
     axis = vrMire.points[2] - vrMire.points[4]
+=======
+    axis = vrMire.points[2] - vrMire.points[5]
+>>>>>>> afa77c6 (Rien de nouveau)
     axis = axis / np.linalg.norm(axis)
     mat_rot = calcul_matrice_rotation(axis , tht)
-    xm = vrMire.points[0]
+    xm = vrMire.points[2]
     """mat_rot = np.array([
     [np.cos(phi), -np.sin(phi), 0, 0],
     [np.sin(phi),  np.cos(phi), 0, 0],

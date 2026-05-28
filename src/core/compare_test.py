@@ -24,12 +24,14 @@ SAVE_GIF = False
 # 3D scene -- Data
 #--------------------------------
 
+
 # My 3D scene data
 """t = np.linspace(0, 4*np.pi, 100)
 data_x = 50 * np.cos(t)
 data_y = 50 * np.sin(t)
 data_z = 10 * t"""
 mire = Mire.load_json("newMire") # avant : "mire_tr"
+
 obs_ref = Observation.load_json("obs_ref")
 obs_pts = obs_ref.points
 
@@ -55,9 +57,11 @@ obs_3d = np.array([
     screen["origin"] + p[0]*u1 + p[1]*u2
     for p in obs_pts
 ]) 
+
 #(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
 #(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
 pts =  mire.points
+
 
 
 
@@ -65,9 +69,13 @@ data = np.zeros((360, len(pts), 3), dtype=float)
 data_proj = np.zeros((360,len(pts),3),dtype=float)
 
 #ym_xm = (ym2_rote - xm2_rote)
+
 ym_xm = mire.points[0] - mire.points[1]
 xm2_rote=mire.points[0]
 ym2_rote=mire.points[1]
+
+
+
 
 #Rotation autour de Z
 for i in range(360):
@@ -83,7 +91,14 @@ for i in range(360):
         data[i, j] = pt_rot
         data_proj[i,j]=pt_p3D
 
+
 scores = []
+=======
+#########################################################
+
+###########################################################
+#Boucle pour les scores 
+
 
 for i in range(360):
 
@@ -98,6 +113,7 @@ best_frame = np.argmin(scores)
 
 print("Best angle:", best_frame) # Ecrire best_frame/np.pi*180 pour avoir l'angle en degrés
 print("Best score:", scores[best_frame])
+
 # Sécurise toute l'animation au-dessus de l'écran
 
 print("\n--- Lancement de la labélisation ---")
@@ -323,7 +339,7 @@ def animate(in_angle: int):
   scatter._offsets3d = (x, y, z)
   scatter_proj._offsets3d = (x_proj, y_proj, z_proj)
  
-  if abs(in_angle - best_frame) <= 2:
+  if in_angle == best_frame:
     scatter_proj.set_edgecolor('green')
   else:
     scatter_proj.set_edgecolor('blue')

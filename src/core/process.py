@@ -30,7 +30,7 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)
     #On applique alors la translation de vecteur xpxo à la mire 
     xp_xo = xo - xp 
-    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 50*screen["normal"]
+    trs_3d = xp_xo[0]*screen["u1"] + xp_xo[1]*screen["u2"] + 10*screen["normal"]
     mat_trs = np.array([
     [1,0,0,trs_3d[0]],
     [0,1,0,trs_3d[1]],
@@ -325,6 +325,15 @@ def app_proc(mire,obs,screen,xo,yo):
                     ym2_inv,
                     360
                 )
+
+                # meilleur résultat
+                if score < best_score:
+
+                    best_score = score
+                    best_agl = agl
+                    best_mire = mire2
+                    best_xm = xm2
+                    best_ym = ym2
 
         except Exception as e:
             print("Erreur process 3 sur le couple :", id1, id2, e)
