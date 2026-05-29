@@ -1,20 +1,25 @@
+#1. Bibliothèques standard
 import os
-curr_dir = os.path.dirname(__file__) # Current directory
-#
-from scipy.optimize import minimize
+
+#Bibliothèques tierces
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from src.core.geometry import build_basis
-from src.core.process import frst_process
-from src.core.projection import project_pt_to_plane
+from matplotlib.widgets import Button
+from scipy.optimize import minimize
 from scipy.spatial.distance import cdist
-from src.core.process import scd_process
-from src.core.process import thd_process
-from src.core.transformation import calcul_matrice_rotation
-from src.core.mire import Mire 
-from src.core.observation import Observation 
-import numpy as np
 
+#Modules locaux
+from src.core.dichotomie import optimisation_dichotomie
+from src.core.geometry import build_basis
+from src.core.mire import Mire
+from src.core.observation import Observation
+from src.core.process import frst_process, scd_process, thd_process
+from src.core.projection import project_pt_to_plane
+from src.core.transformation import calcul_matrice_rotation
+
+#Configuration / Variables globales
+curr_dir = os.path.dirname(__file__) # Current directory
 
 # Save animation to GIF?
 SAVE_GIF = False
@@ -54,9 +59,6 @@ obs_3d = np.array([
     screen["origin"] + p[0]*u1 + p[1]*u2
     for p in obs_pts
 ]) 
-#(mire_1,xm_rote,ym_rote,lst_xm)=frst_process(mire,screen,obs_ref.points[0],obs_ref.points[1])
-#(mire_2,xm2_rote,ym2_rote,lst2_xm)=scd_process(mire_1,screen,lst_xm,xm_rote,ym_rote,obs_ref.points[0],obs_ref.points[1])
-
 pts =  mire.points
 
 ####################################################
@@ -64,10 +66,6 @@ pts =  mire.points
 data = np.zeros((360, len(pts), 3), dtype=float)
 data_proj = np.zeros((360,len(pts),3),dtype=float)
 
-#####################################################
-
-
-#ym_xm = (ym2_rote - xm2_rote)
 
 ########################################"
 #Les pts pour l'axe de rotation fixés et ym_xm pour la construction de la matrice de rotation 
@@ -106,24 +104,7 @@ for i in range(360):
 ###########################################################
 #Boucle pour les scores 
 
-"""
-scores = []
 
-for i in range(360):
-
-    err = np.linalg.norm(data_proj[i] - obs_3d, axis=1)
-
-    # erreur du pire point
-    score = np.max(err)
-
-    scores.append(score)
-
-best_frame = np.argmin(scores)
-
-print("Best frame:", best_frame)
-print("Best score:", scores[best_frame])
-
-############################################################# """
 def evaluer_angle(theta_deg):
     theta_rad = np.deg2rad(theta_deg[0])
     mR_test = calcul_matrice_rotation(axis, theta_rad)
@@ -140,14 +121,13 @@ def evaluer_angle(theta_deg):
     erreurs = np.linalg.norm(np.array(pts_projetes_test) - obs_3d, axis=1)
     return np.max(erreurs)
 
-# 2. Lancement de l'optimisation à partir d'une estimation à 0°
-print("\n--- Optimisation en cours ---")
-resultat = minimize(evaluer_angle, x0=[0.0], method='Nelder-Mead')
+#Lancement de l'optimisation par la dichotomie
+print("\n--- Optimisation par Dichotomie en cours ---")
+best_angle_exact = optimisation_dichotomie(pts, obs_3d, axis, xm2_rote, screen, u1, u2)
 
-# 3. Récupération du résultat pour l'affichage
-best_angle_exact = resultat.x[0]
+#récupération du résultat pour l'affichage (on réutilise leur fonction d'évaluation pour le score)
 best_frame = int(np.round(best_angle_exact)) % 360  # Arrondi pour l'index de l'animation
-best_score = resultat.fun
+best_score = evaluer_angle([best_angle_exact])
 
 print(f"Angle exact trouvé par le modèle : {best_angle_exact:.3f}°")
 print(f"Index d'affichage correspondant : {best_frame}")
@@ -182,7 +162,6 @@ pt_2= xm2_rote - 2*(ym2_rote-xm2_rote)
 # Create 3D figure
 #--------------------------------
 
-#################################################################
 
 #Tout ce qui est lié à la création du box 3D, axes et autres. Normalement pas besoin d'y toucher
 
@@ -218,7 +197,8 @@ ymax = np.max(data[:,:,1])
 zmin = np.min(data[:,:,2])
 zmax = np.max(data[:,:,2])
 
-pad = 90#Ce truc joue un role dans la représentation de l'écran à 0 l'écran se retouve très grand et en dessous du box 3D autre valeur plus petit et dans le box 
+pad = 90
+#Ce truc joue un role dans la représentation de l'écran à 0 l'écran se retouve très grand et en dessous du box 3D autre valeur plus petit et dans le box 
 
 axes.set_xlim(xmin - pad, xmax + pad)
 axes.set_ylim(ymin - pad, ymax + pad)
@@ -301,6 +281,23 @@ scatter_proj = axes.scatter(
 )
 proj_lines = []
 
+#TRACÉ DES ORBITES DE TRAJECTOIRE AU SOL ---
+#On trace la trajectoire complète projetée pour chaque point de la mire..
+angles_full = np.linspace(0, 2 * np.pi, 360)
+for pt_index in range(len(pts)):
+    trajectoire_x = []
+    trajectoire_y = []
+    trajectoire_z = []
+    # On simule les 360 positions projetées pour ce point précis
+    for i in range(360):
+        trajectoire_x.append(data_proj[i, pt_index, 0])
+        trajectoire_y.append(data_proj[i, pt_index, 1])
+        trajectoire_z.append(data_proj[i, pt_index, 2])
+        
+    axes.plot(trajectoire_x, trajectoire_y, trajectoire_z, 
+              color='deepskyblue', linestyle='-', alpha=0.3, linewidth=1)
+# -------------------------------------------------------
+
 #--------------------------------
 # Animation function
 #--------------------------------
@@ -316,13 +313,7 @@ def animate(in_angle: int):
   # Log
   # print(f'Animating frame {in_frame}')
 
-  # Reset if starting frame
-  """if in_angle == 0:
-    # Reset camera
-    axes.elev = 50
-    axes.azim = 45"""
-
-    # Reset animated data
+  # Reset animated data
   x = []
   y = []
   z = []
@@ -331,7 +322,6 @@ def animate(in_angle: int):
   y_proj = [] 
   z_proj = []
    
-
   # Set timestamp in title
   axes.set_title('{:.3f}'.format(in_angle))
 
@@ -346,10 +336,6 @@ def animate(in_angle: int):
   x_proj = data_proj[in_angle,:,0] 
   y_proj = data_proj[in_angle,:,1] 
   z_proj = data_proj[in_angle,:,2] 
-
-
-
-
 
   # Update scatter plot
   scatter._offsets3d = (x, y, z)
@@ -382,7 +368,35 @@ def animate(in_angle: int):
     )
     proj_lines.append(ln[0])
 
+  # --- AJOUT : GESTION DE LA CAMÉRA ET DU TITRE ---
+  global auto_rotate_cam
+  if auto_rotate_cam:
+      axes.view_init(elev=50, azim=in_angle) # La caméra tourne
+
+  # Titre dynamique
+  if in_angle == best_frame:
+      axes.set_title(f"Angle Optimal : {best_angle_exact:.3f}° (Frame {in_angle})", color='green', fontsize=14, fontweight='bold')
+  else:
+      axes.set_title(f"Recherche... {in_angle}° | Cible : {best_angle_exact:.1f}°", color='black')
+  # ------------------------------------------------
+
   return scatter, scatter_proj
+
+#--------------------------------
+# AJOUT : BOUTON INTERACTIF AUTO-ROTATE
+#--------------------------------
+auto_rotate_cam = False
+ax_btn = plt.axes([0.1, 0.05, 0.2, 0.06])
+btn_rotate = Button(ax_btn, 'Caméra: OFF', color='lightgray', hovercolor='skyblue')
+
+def toggle_rotation(event):
+    global auto_rotate_cam
+    auto_rotate_cam = not auto_rotate_cam
+    btn_rotate.label.set_text(f"Caméra: {'ON' if auto_rotate_cam else 'OFF'}")
+    figure.canvas.draw_idle()
+
+btn_rotate.on_clicked(toggle_rotation)
+
 #--------------------------------
 # Generate animation, save, show
 #--------------------------------
@@ -392,14 +406,6 @@ anim = animation.FuncAnimation(figure, animate,
                                frames=360,
                                interval=50,
                                repeat=True)
-
-# Save?
-"""if SAVE_GIF:
-  gif_path = os.path.join(curr_dir, '__ANIM__.gif')
-  anim.save(gif_path)
-
-  # Log
-  print(f'Saved animation to "{gif_path}"')"""
 
 # Show 3D animation
 plt.show()
