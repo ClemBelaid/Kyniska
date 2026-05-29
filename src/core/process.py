@@ -326,15 +326,6 @@ def app_proc(mire,obs,screen,xo,yo):
                     360
                 )
 
-                # meilleur résultat
-                if score < best_score:
-
-                    best_score = score
-                    best_agl = agl
-                    best_mire = mire2
-                    best_xm = xm2
-                    best_ym = ym2
-
         except Exception as e:
             print("Erreur process 3 sur le couple :", id1, id2, e)
             continue

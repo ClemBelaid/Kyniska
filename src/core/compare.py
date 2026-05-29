@@ -61,6 +61,11 @@ yo = obs_ref.points[1]
 # Animation de la rotation de la mire
 # Attention : il faut donner comme argument la mire après le second process, pas bst_mire !
 
+
+#bst_xm = mire.points[0]
+#bst_ym = mire.points[1]
+#bst_agl = 0
+
 (mire_1, xm_rote, ym_rote, lst_xm) = frst_process(mire, screen, bst_xm, bst_ym, xo, yo)
 (mire_2, mire_2_inv, xm2_rote, ym2_rote, ym2_rote_inv) = scd_process(mire_1, screen, lst_xm, xm_rote, ym_rote, xo, yo)
 (data, data_proj) = animate_rotation(mire_2, obs_3d, screen, xm2_rote, ym2_rote, xo, yo, bst_agl)
@@ -71,6 +76,11 @@ yo = obs_ref.points[1]
 best_frame = int(bst_agl/np.pi*180)
 print("Best angle:", best_frame)
 print("Best score:", bst_score)
+print("Best xm = ", bst_xm)
+print("Best ym = ", bst_ym)
+print("Vrai xm = ", mire.points[0])
+print("Vrai ym = ", mire.points[1])
+
 
 # Labélisation des points projetés de la mire
 meilleurs_points_projetes = data_proj[best_frame]
