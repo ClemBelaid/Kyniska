@@ -47,9 +47,13 @@ def validate_camera(points3d, points2d, rvec, tvec):
     points3d = np.asarray(points3d, dtype=np.float32)
     projected, _ = cv2.projectPoints(points3d, rvec, tvec, np.eye(3), None)
     projected = projected.squeeze()
+<<<<<<< HEAD:src/core/matching.py
     
     #
     #On utilise la fonction pour créer le dictionnaire final
     correspondances = labeliser_points(projected, points2d)
     
     return correspondances
+=======
+    chercher_points_correspondants(projected, points2d)
+>>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae:old/matching.py
