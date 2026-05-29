@@ -4,6 +4,8 @@ curr_dir = os.path.dirname(__file__) # Current directory
 import matplotlib.pyplot as plt
 from src.core.geometry import build_basis
 from src.core.process import app_proc
+from src.core.process import frst_process
+from src.core.process import scd_process
 from src.core.mire import Mire 
 from src.core.observation import Observation 
 from src.core.animation import animate_rotation
@@ -49,17 +51,20 @@ obs_3d = np.array([
     for p in obs_pts
 ]) 
 
-# Calcul du meilleur angle par rotation de la mire
-xo =  obs_ref.points[0]
+# Sélection des points (xo, yo) de référence sur l'observation
+xo = obs_ref.points[0]
 yo = obs_ref.points[1]
+
+# Calcul du meilleur angle par rotation de la mire
 (bst_mire, bst_xm, bst_ym, bst_score, bst_agl) = app_proc(mire, obs_ref, screen, xo, yo)
 
-pts =  bst_mire.points
-
-
 # Animation de la rotation de la mire
-# Attention : il faut donner comme argument la mire initiale, pas bst_mire !
-(data, data_proj) = animate_rotation(mire, obs_3d, screen, bst_xm, bst_ym, bst_agl)
+# Attention : il faut donner comme argument la mire après le second process, pas bst_mire !
+
+(mire_1, xm_rote, ym_rote, lst_xm) = frst_process(mire, screen, bst_xm, bst_ym, xo, yo)
+(mire_2, mire_2_inv, xm2_rote, ym2_rote, ym2_rote_inv) = scd_process(mire_1, screen, lst_xm, xm_rote, ym_rote, xo, yo)
+(data, data_proj) = animate_rotation(mire_2, obs_3d, screen, xm2_rote, ym2_rote, xo, yo, bst_agl)
+(data, data_proj) = animate_rotation(mire_2_inv, obs_3d, screen, xm2_rote, ym2_rote_inv, xo, yo, bst_agl)
 
 
 # Impression des résultats (meilleur angle, meilleur scolre)
@@ -75,7 +80,6 @@ meilleurs_points_projetes = data_proj[best_frame]
 
 labels_finaux = labeliser_points(meilleurs_points_projetes, obs_3d)
 print("Correspondances trouvées :", labels_finaux)
-
 
 # Comparaison des erreurs entre la "meilleure mire calculée" et la mire initiale de référence 
 print(bst_mire.points - mire_rot.points)

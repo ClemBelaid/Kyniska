@@ -63,7 +63,7 @@ if __name__ == "__main__":
         ids = list(lst_pts_tr.keys())
 
         mir_rot = Mire(points, ids=ids, alignes=vrMire.alignes)
-        mir_rot.save_json("Mir_tr")
+        mir_rot.save_json("Mire_rot")
 
         obs_ref = proj.project_mire_to_plane(mir_rot, screen)
         obs_ref.save_json("obs_ref")
