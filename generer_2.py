@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Configuration du vecteur de projection et de l'angle
     v2 = np.array([0, 0, 1])
-    tht = np.pi/6  # angle de 30 degrés
+    tht = np.pi/12  # angle de 30 degrés
     phi = tht 
     
     # On gère le cas où vrMire.points est une liste ou un dictionnaire
