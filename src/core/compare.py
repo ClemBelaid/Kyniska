@@ -6,9 +6,11 @@ from src.core.geometry import build_basis
 from src.core.process import app_proc
 from src.core.process import frst_process
 from src.core.process import scd_process
+from src.core.process import thd_process
 from src.core.mire import Mire 
 from src.core.observation import Observation 
 from src.core.animation import animate_rotation
+from src.core.projection import project_mire_to_plane
 
 from src.core.labelisation import labeliser_points
 
@@ -61,13 +63,12 @@ yo = obs_ref.points[1]
 # Animation de la rotation de la mire
 # Attention : il faut donner comme argument la mire après le second process, pas bst_mire !
 
-
-#bst_xm = mire.points[0]
-#bst_ym = mire.points[1]
-#bst_agl = 0
+bst_xm = mire.points[0]
+bst_ym = mire.points[1]
 
 (mire_1, xm_rote, ym_rote, lst_xm) = frst_process(mire, screen, bst_xm, bst_ym, xo, yo)
 (mire_2, mire_2_inv, xm2_rote, ym2_rote, ym2_rote_inv) = scd_process(mire_1, screen, lst_xm, xm_rote, ym_rote, xo, yo)
+
 (data, data_proj) = animate_rotation(mire_2, obs_3d, screen, xm2_rote, ym2_rote, xo, yo, bst_agl)
 (data, data_proj) = animate_rotation(mire_2_inv, obs_3d, screen, xm2_rote, ym2_rote_inv, xo, yo, bst_agl)
 
@@ -81,15 +82,15 @@ print("Best ym = ", bst_ym)
 print("Vrai xm = ", mire.points[0])
 print("Vrai ym = ", mire.points[1])
 
-
-# Labélisation des points projetés de la mire
-meilleurs_points_projetes = data_proj[best_frame]
+#  Labélisation des points projetés de la mire
+new_obs = project_mire_to_plane(bst_mire, screen)
+points_projetes = new_obs.points
 
 # Remarque importante : on part du principe que data et data_proj contiennent 360 lignes (pour chaque angle variant d'1 degré)
 # Mais si on modifie le nombre d'angles, il faut peut-être modifier un peu cette structure ...
 
-labels_finaux = labeliser_points(meilleurs_points_projetes, obs_3d)
+labels_finaux = labeliser_points(points_projetes, obs_ref.points)
 print("Correspondances trouvées :", labels_finaux)
 
-# Comparaison des erreurs entre la "meilleure mire calculée" et la mire initiale de référence 
+# Comparaison des erreurs entre la "meilleure mire calculée" et la mire initiale de référence
 print(bst_mire.points - mire_rot.points)
