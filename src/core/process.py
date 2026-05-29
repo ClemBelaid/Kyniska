@@ -16,7 +16,6 @@ from itertools import combinations
 
 
 
-<<<<<<< HEAD
 def frst_process(mire,screen,xm,ym,xo,yo):
     """ Entrées: la mire , le plan écran(un dico avec vecteur normal, vect directeurs et origine), 2 points de la mire,et les 2 points fixés de l'écran
         Sorties: La mire obtenue après la translation et la rotation  les points xm, ym apres translation et rotation et la liste des points transformés  """
@@ -24,18 +23,6 @@ def frst_process(mire,screen,xm,ym,xo,yo):
     #prendre 2 points au hasard de notre mire 
     vn=screen["normal"]
     
-=======
-def frst_process(mire, screen, xm, ym, xo, yo):
-    """ Entrées: la mire , le vecteur normal du plan écran et les 2 points fixés de l'écran
-        Sorties:La mire obtenue après la translation et la rotation  les points xm, ym """
-    eps = 1e-2
-   
-    random.seed(0)
-    
-    #On suppose que d(xo,yo)>0 (xo et yo ne sont pas trop proches)
-    #prendre 2 points au hasard de notre mire 
-    vn=screen["normal"]
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
     xp = project_pt_to_plane(xm, screen)
     yp = project_pt_to_plane(ym, screen)
     #A ce stade on a un couple (xm,ym) candidat potentiel à la projection de (xo,yo)
@@ -123,40 +110,10 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
     # -----------------------------------------
     yo_xo = yo - xo
 
-<<<<<<< HEAD
 def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
     """Entrées: la mire , le vecteur normal au plan écran ,la liste des points de la mire après le first_process, les points 
     xm et ym obtenues après translation et rotation  de la mire, xo et yo les points fixés de l'écran
        Sorties : la mire roté pour que p(ym)=yp soit égale à yo, les points xm , ym tranformés par cette deuxième rotation et la liste des pts transformés """
-=======
-    d = (
-        yo_xo[0] * screen["u1"]
-        + yo_xo[1] * screen["u2"]
-    )
-
-    d = d / np.linalg.norm(d)
-
-    # -----------------------------------------
-    # Axe parallèle à l'écran
-    # et orthogonal à xo->yo
-    # -----------------------------------------
-    n = screen["normal"]
-
-    axis = np.cross(n, d)
-    axis = axis / np.linalg.norm(axis)
-
-    # -----------------------------------------
-    # Recherche du meilleur angle
-    # -----------------------------------------
-    angles = np.linspace(np.pi, 0, 2000)
-
-    best_err = np.inf
-    best_rot = None
-    best_ym = None
-    best_rot_inv = None
-
-    # Calcul de l'angle phi entre le vecteur ym_xm et l'écran
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
     ym_xm = ym - xm
     sin_phi = ym_xm[2]
     ym_xm[2] = 0
@@ -221,11 +178,7 @@ def scd_process(mire,screen,lst_xmr_fin,xm,ym,xo,yo):
     
 
 def thd_process(mire,screen,obs,xm,ym,N):
-<<<<<<< HEAD
     """Entrées: la mire qui a été fixée correctement,l'écran en dico avec ses 4 attrributs : vect normal , origine et vect directeurs, les pts xm, ym bien fixés et N constante de discrétisation de l'intervalle des angles 
-=======
-    """Entrées: la mire qui a été fixée correctement,le vecteur normal au plan, l'observation originale, 
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
     xm et ym qui sont sur notre axe de rotation N pour la discrétisation des angles """
     
     angles = np.linspace(0, 2*np.pi, N, endpoint=False)
@@ -235,14 +188,8 @@ def thd_process(mire,screen,obs,xm,ym,N):
     eps = 1e-4
 
     best_rms = np.inf
-<<<<<<< HEAD
     #best_mire = None
     #best_angle = None
-=======
-    best_mire = None
-    best_angle = None
-    axis = ym_xm / np.linalg.norm(ym_xm)
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
 
     for agl in angles:
         mR = calcul_matrice_rotation(axis, agl)
@@ -273,14 +220,9 @@ def thd_process(mire,screen,obs,xm,ym,N):
         if rms < eps:
             break
 
-<<<<<<< HEAD
     return  best_rms, agl
     """( best_mire,"""
     """, best_angle)"""
-=======
-    return (best_mire, best_rms, best_angle)
-           
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
 
 def app_proc(mire,obs,screen,xo,yo): 
         
@@ -291,7 +233,6 @@ def app_proc(mire,obs,screen,xo,yo):
     best_xm = None
     best_ym = None
     best_agl = 0
-<<<<<<< HEAD
 
     for (id1, xm), (id2, ym) in combinations(pts_items, 2):
 
@@ -362,93 +303,3 @@ def app_proc(mire,obs,screen,xo,yo):
 
 
 
-=======
-
-    for (id1, xm), (id2, ym) in permutations(pts_items, 2):
-        xm = np.array(xm)
-        ym = np.array(ym)
-
-        dist = np.linalg.norm(ym - xm)
-
-        # conditions CORRIGEES !
-        if dist <= 1e-8:
-            continue
-
-        if dist < d_obs:
-            continue
-
-        try:
-                # process 1
-                #print("entering 1st process")
-                mire1, xm1, ym1, lst1 = frst_process(
-                    mire,
-                    screen,
-                    xm,
-                    ym,
-                    xo,
-                    yo
-                )
-
-        except Exception as e:
-            print("Erreur process 1 sur le  couple :", id1, id2, e)
-            continue
-
-        try:
-                #print("entering 2nd process")
-                # process 2
-                mire2, mire2_inv, xm2, ym2, ym2_inv = scd_process(
-                    mire1,
-                    screen,
-                    lst1,
-                    xm1,
-                    ym1,
-                    xo,
-                    yo
-                )
-
-        except Exception as e:
-            print("Erreur process 2 sur le couple :", id1, id2, e)
-            continue
-
-        try:
-                #print("entering 3rd process")
-                # process 3 - positif
-                mire3, score, agl = thd_process(
-                    mire2,
-                    screen,
-                    obs,
-                    xm2,
-                    ym2,
-                    360
-                )
-                # process 3 - négatif
-                mire3_inv, score_inv, agl_inv = thd_process(
-                    mire2_inv,
-                    screen,
-                    obs,
-                    xm2,
-                    ym2_inv,
-                    360
-                )
-
-        except Exception as e:
-            print("Erreur process 3 sur le couple :", id1, id2, e)
-            continue
-
-        # meilleur résultat
-        if score < best_score:
-            best_score = score
-            best_agl = agl
-            best_mire = mire3
-            best_xm = xm
-            best_ym = ym
-
-        if score_inv < best_score:
-            best_score = score_inv
-            best_agl = agl_inv
-            best_mire = mire3_inv
-            best_xm = xm
-            best_ym = ym
-
-    return best_mire, best_xm, best_ym, best_score, best_agl
->>>>>>> 0356f94f014ed87ce6f511eba4ca4909eb83edae
