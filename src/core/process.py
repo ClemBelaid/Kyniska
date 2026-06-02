@@ -11,7 +11,7 @@ from src.core.transformation import calcul_matrice_rotation
 from src.core.geometry import perpendicular_vector
 from src.core.check_for_process import check_observ
 from src.core.check_for_process import check_couple
-#from .visualiser6 import visualiser_iteration
+
 
 
 
@@ -79,21 +79,13 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     a = np.arctan2(sin_a, cos_a)
     mat_rot = calcul_matrice_rotation(axis, a)
     
-    #norm_u = np.linalg.norm(u_xmxo)
-    #if norm_u < 1e-8:
-    #    mat_rot = np.eye(3)
-    #else:
-    #    u_xmxo = u_xmxo / norm_u
-    #    mat_rot = calcul_matrice_rotation(u_xmxo, a)
 
-    ###########################################################
     lst_xmire_fin = {}
     for id, x_mire in lst_xmire_trs.items() :
          x_mire = np.array(x_mire)
          x_mire_rote = mat_rot @ (x_mire - xm_trs) + xm_trs
          lst_xmire_fin[id]= x_mire_rote.tolist()
-    ###################################
-    #xm_trs = np.array(xm_trs)
+    
     xm_rote= xm_trs
     
     #ym_trs = np.array(ym_trs)
@@ -107,9 +99,9 @@ def frst_process(mire, screen, xm, ym, xo, yo):
 
 def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
 
-    # -----------------------------------------
+    
     # Direction écran xo -> yo remise en 3D
-    # -----------------------------------------
+    
     yo_xo = yo - xo
 
     d = (
@@ -119,18 +111,18 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
 
     d = d / np.linalg.norm(d)
 
-    # -----------------------------------------
+    
     # Axe parallèle à l'écran
     # et orthogonal à xo->yo
-    # -----------------------------------------
+    
     n = screen["normal"]
 
     axis = np.cross(n, d)
     axis = axis / np.linalg.norm(axis)
 
-    # -----------------------------------------
+    
     # Recherche du meilleur angle
-    # -----------------------------------------
+    
     angles = np.linspace(np.pi, 0, 2000)
 
     best_err = np.inf
@@ -162,9 +154,9 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
             best_ym = ym_rot
             best_ym_inv = best_rot_inv @ (ym - xm) + xm
 
-    # -----------------------------------------
+    
     # Rotation finale de toute la mire
-    # -----------------------------------------
+    
     lst_fin = {}
 
     for id, pt in lst_xmr_fin.items():
