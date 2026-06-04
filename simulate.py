@@ -12,7 +12,7 @@ if __name__ == "__main__":
     if argc == 1 :
         print("Usage: applique pose  + projection "
               "program <mire.json> \n"
-              " - <mire.json> : la forme qu'on veut de la mire }\n",
+              " - <mire.json> : le json de la mire de départ }\n",
               file=sys.stderr)
         sys.exit(1)
     

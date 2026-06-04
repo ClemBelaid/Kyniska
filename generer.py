@@ -5,19 +5,19 @@ from src.core.generation import (
     generer_cone_tronque_creux
 )
  
-#import src.core.projection as proj
-#from src.core.geometry import build_basis
+
 import numpy as np
 import sys
 
-#from src.core.transformation import calcul_matrice_rotation
+
 
 if __name__ == "__main__":
     argc = len(sys.argv)
     if argc == 1 :
         print("Usage: generation + sauvegarde de la mire"
               "program <nom_mire> <nb_billes > \n"
-              " - <nom_Mire> : la forme qu'on veut de la mire }\n",
+              " - <nom_Mire> : la forme qu'on veut de la mire"
+               "- <nb_billes > : le nombre de billes qu'on souhaite",
               file=sys.stderr)
         sys.exit(1)
 

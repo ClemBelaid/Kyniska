@@ -26,7 +26,7 @@ SAVE_GIF = False
 #--------------------------------
 
 mire = Mire.load_json("vrMire") # Notre mire initiale (non-rotée) et l'algo va déterminer cette rotation qui colle avec les observations de obs_ref
-mire_rot = Mire.load_json("Mire_rot") # La mire tournée et translatée ayant servi à calculer obs_ref
+mire_rot = Mire.load_json("Mire_rot") # La mire tournée et translatée ayant servi à produire obs_ref
 obs_ref = Observation.load_json("obs_ref")
 obs_pts = obs_ref.points
 

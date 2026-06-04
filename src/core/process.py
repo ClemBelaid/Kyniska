@@ -16,8 +16,9 @@ from src.core.check_for_process import check_couple
 
 
 def frst_process(mire, screen, xm, ym, xo, yo):
-    """ Entrées: la mire , le vecteur normal du plan écran et les 2 points fixés de l'écran
-        Sorties:La mire obtenue après la translation et la rotation  les points xm, ym """
+    """ Entrées: la mire , l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), les 2 points de la mire avec lesquels 
+     on va faire le fixing et les 2 points fixés de l'écran.
+        Sorties:La mire obtenue après la translation et la rotation  les points xm, ym après la transformation et la liste des points de la mire transformés"""
     eps = 1e-2
    
     random.seed(0)
@@ -98,6 +99,10 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     return (Mire(points, ids=ids, alignes=mire.alignes), xm_rote , ym_rote, lst_xmire_fin)
 
 def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
+    """ Entrées: la mire , l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), les 2 points de la mire obtenus après frst_process 
+     et les 2 points fixés de l'écran.
+        Sorties:La mire obtenue après la rotation pour fixer ym comme point de la projection yo, la deuxième mire éventuelle solution de p(ym)=yo en appliquant la rotation 
+         les points xm, ym après la transformation et la liste des points de la mire transformés"""
 
     
     # Direction écran xo -> yo remise en 3D
@@ -195,8 +200,9 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
     
 
 def thd_process(mire,screen,obs,xm,ym,N):
-    """Entrées: la mire qui a été fixée correctement,le vecteur normal au plan, l'observation originale, 
-    xm et ym qui sont sur notre axe de rotation N pour la discrétisation des angles """
+    """ Entrées: la mire , l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), l'observation référence , les 2 points de la mire obtenus après frst et scd process 
+     et N pour la discrétisation de l'intervalle des angles.
+        Sorties:la mire à la position qui colle le mieux avec l'observation référence , l'angle obtenu et l'erreur  """
     
     angles = np.linspace(0, 2*np.pi, N, endpoint=False)
     
@@ -242,7 +248,9 @@ def thd_process(mire,screen,obs,xm,ym,N):
            
 
 def app_proc(mire,obs,screen,xo,yo): 
-        
+    """ Entrées: la mire , l'observation référence ,  l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), les 2 points 
+    fixés de l'observation 
+        Sorties:la pose de la mire qui colle le mieux avec l'observation référence , les candidats xm et ym qui donnent cette meilleure pose l'angle obtenu, l'erreur et l'angle  """   
     pts_items = list(mire.pts.items())
     d_obs = np.linalg.norm(yo - xo)
     best_score = np.inf
