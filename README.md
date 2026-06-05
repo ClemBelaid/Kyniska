@@ -26,7 +26,8 @@ NB: Certains tests pourraient ne pas passer, ayant été réalisés au tout déb
 # Commandes à exécuter:
 
 python generer.py "forme de mire" "nombre de billes" : obtient un vrMire(.json) 
-python simulate.py "le mire.json de la vrai mire" : obtient un Mir_rot(.json) et obs_ref(.json)
+python simulate.py "le mire.json de la vrai mire" "bruit on ou off (0 ou 1): obtient un Mir_rot(.json) et obs_ref(.json)
+Ex : python simulate.py vrMire 1 (le bruit gaussien est intégré à certains points de l'observation les points sont décalés plus ou moins de leurs positions d'origine). On peut aussi essayer de remplacer ajouter_bruit_gaussien par ajouter_bruit_position (ratio=0.2, amplitude=2.0) pour un bruit uniforme 
 python -m src.core.compare 
 
 # Résultats : **

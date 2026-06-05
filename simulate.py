@@ -11,8 +11,9 @@ if __name__ == "__main__":
     argc = len(sys.argv)
     if argc == 1 :
         print("Usage: applique pose  + projection "
-              "program <mire.json> \n"
-              " - <mire.json> : le json de la mire de départ }\n",
+              "program <mire.json> <ajout du bruit> \n"
+              " - <mire.json> : le json de la mire de départ }\n"
+              " - <ajout du bruit> : 0=pas de bruit et 1=bruit  }\n",
               file=sys.stderr)
         sys.exit(1)
     
@@ -32,9 +33,10 @@ if __name__ == "__main__":
         "u2": u2
         }
 
-    if argc == 2 :
+    if argc == 3 :
         nom_Mire = sys.argv[1]
         vrMire = Mire.load_json(nom_Mire)
+        bruit_on = int(sys.argv[2])
         np.random.seed(42)
         a, b, c = np.random.uniform(
         -np.pi/6,
@@ -66,4 +68,6 @@ if __name__ == "__main__":
         mir_rot.save_json("Mire_rot")
 
         obs_ref = proj.project_mire_to_plane(mir_rot, screen)
+        if bruit_on : 
+            obs_ref.ajouter_bruit_gaussien(ratio=0.6, sigma=2.0) #on peut aussi essayer avec ajouter_bruit_position(ratio=0.2, amplitude=2.0) pour un bruit uniforme 
         obs_ref.save_json("obs_ref")
