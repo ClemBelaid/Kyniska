@@ -96,41 +96,24 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     return (Mire(points, ids=ids, alignes=mire.alignes), xm_rote , ym_rote, lst_xmire_fin)
 
 def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
-    """ Entrées: la mire , l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), les 2 points de la mire obtenus après frst_process 
-     et les 2 points fixés de l'écran.
-        Sorties:La mire obtenue après la rotation pour fixer ym comme point de la projection yo, la deuxième mire éventuelle solution de p(ym)=yo en appliquant la rotation 
-         les points xm, ym après la transformation et la liste des points de la mire transformés"""
+    
+    vn = screen["normal"]
+    u1 = screen["u1"]
+    u2 = screen["u2"]
+    
+    points = mire.points
 
-    
-    # Direction écran xo -> yo remise en 3D
-    
     yo_xo = yo - xo
+    yo_xo = yo_xo[0] * screen["u1"] + yo_xo[1] * screen["u2"]
+    ym_xm = ym - xm
 
-    d = (
-        yo_xo[0] * screen["u1"]
-        + yo_xo[1] * screen["u2"]
-    )
+    b = np.linalg.norm(yo_xo)
+    c = np.linalg.norm(ym_xm)
+    a = np.sqrt(c**2 - b**2)
 
-    d = d / np.linalg.norm(d)
-
-    
-    # Axe parallèle à l'écran
-    # et orthogonal à xo->yo
-    
-    n = screen["normal"]
-
-    axis = np.cross(n, d)
-    axis = axis / np.linalg.norm(axis)
-
-    
-    # Recherche du meilleur angle
-    
-    angles = np.linspace(np.pi, 0, 2000)
-
-    best_err = np.inf
-    best_rot = None
-    best_ym = None
-    best_rot_inv = None
+    theta = np.arctan2(a, b)
+    axis = np.cross(vn, yo_xo)
+    mat_rot = calcul_matrice_rotation(axis, -theta)
 
     # Calcul de l'angle phi entre le vecteur ym_xm et l'écran
     ym_xm = ym - xm
@@ -139,32 +122,18 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
     cos_phi = np.linalg.norm(ym_xm)
     phi = np.arctan2(sin_phi, cos_phi)
 
-    for angle in angles:
-        R = calcul_matrice_rotation(axis, angle)
+    angle_inv = -(2*phi + theta)
+    mat_rot_inv = calcul_matrice_rotation(vn, angle_inv)
 
-        ym_rot = R @ (ym - xm) + xm
-
-        proj = project_pt_to_plane(ym_rot, screen)
-
-        err = np.linalg.norm(proj - yo)
-
-        if err < best_err:
-            best_err = err
-            best_rot = R
-            angle_inv = 2*phi + angle
-            best_rot_inv = calcul_matrice_rotation(axis, -angle_inv)
-            best_ym = ym_rot
-            best_ym_inv = best_rot_inv @ (ym - xm) + xm
-
-    
+    # -----------------------------------------
     # Rotation finale de toute la mire
-    
+    # -----------------------------------------
     lst_fin = {}
 
     for id, pt in lst_xmr_fin.items():
 
         pt = np.array(pt)
-        pt_rot = best_rot @ (pt - xm) + xm
+        pt_rot = mat_rot @ (pt - xm) + xm
         lst_fin[id] = pt_rot.tolist()
 
     points = list(lst_fin.values())
@@ -181,7 +150,7 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
     for id, pt in lst_xmr_fin.items():
 
         pt = np.array(pt)
-        pt_rot_inv = best_rot_inv @ (pt - xm) + xm
+        pt_rot_inv = mat_rot_inv @ (pt - xm) + xm
         lst_fin_inv[id] = pt_rot_inv.tolist()
 
     points_inv = list(lst_fin_inv.values())
@@ -192,6 +161,9 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
         ids = ids_inv,
         alignes = mire.alignes
     )
+
+    best_ym = mat_rot @ (ym - xm) + xm
+    best_ym_inv = mat_rot_inv @ (ym - xm) + xm
 
     return mire_fin, mire_fin_inv, xm, best_ym, best_ym_inv
     
