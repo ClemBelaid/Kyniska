@@ -19,9 +19,6 @@ def frst_process(mire, screen, xm, ym, xo, yo):
     """ Entrées: la mire , l'écran un dico avec ses paramètres(origine, vecteur normal vn et vecteurs directeurs u1 et u2), les 2 points de la mire avec lesquels 
      on va faire le fixing et les 2 points fixés de l'écran.
         Sorties:La mire obtenue après la translation et la rotation  les points xm, ym après la transformation et la liste des points de la mire transformés"""
-    eps = 1e-2
-   
-    random.seed(0)
     
     #On suppose que d(xo,yo)>0 (xo et yo ne sont pas trop proches)
     #prendre 2 points au hasard de notre mire 
