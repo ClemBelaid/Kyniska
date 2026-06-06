@@ -123,34 +123,60 @@ class Observation:
 
 
         return cls(points, ids, alignes, v)
+    
+    def ajouter_bruit_gaussien(self, ratio=0.3, sigma=2.0):
 
-    def ajouterBruit(self, posRatio, negRatio):
+        "ratio: ratio de points affectés par le bruit et "
+        "sigma l'écart-type de la loi normale"
+        
+
+        ids = self.ids
+        nb = int(len(ids) * ratio)
+
+        ids_bruites = np.random.choice(
+        ids,
+        nb,
+        replace=False
+        )
+
+        for pid in ids_bruites:
+
+            pt = np.array(self.pts[pid])
+
+            bruit = np.random.normal(
+            0,
+            sigma,
+            2
+            )
+
+            self.pts[pid] = (pt + bruit).tolist()
+
+    def ajouter_bruit_position(self, ratio=0.2, amplitude=2.0):
         """
-        Modifie l'observation en ajoutant/supprimant des points (bruit).
+        Déplace aléatoirement une partie des points.
+
+        ratio : proportion de points bruités (entre 0 et 1)
+        amplitude : déplacement max en unités écran
         """
+
         np.random.seed(42)
-        current_ids = self.ids
 
-        # 1. Faux Négatifs (Suppression de billes existantes)
-        nb_to_remove = int(len(self) * negRatio)
-        if nb_to_remove > 0 and current_ids:
-            # Choix aléatoire des IDs à supprimer
-            ids_to_remove = np.random.choice(current_ids, min(nb_to_remove, len(current_ids)), replace=False)
-            for rid in ids_to_remove:
-                del self.pts[rid]
+        ids = self.ids
+        nb = int(len(ids) * ratio)
 
-        # 2. Faux Positifs (Ajout de points "fantômisés")
-        nb_to_add = int(len(self) * posRatio)
-        if nb_to_add > 0:
-            # On génère des IDs négatifs pour les distinguer des vraies billes
-            #comme suggéré pour l'identification des bruits...
-            start_id = min(self.ids) if self.ids else 0
-            fake_ids = range(start_id - nb_to_add, start_id)
-            
-            #Génération de coordonnées 2D aléatoires (échelle arbitraire 0-3)
-            new_pts = np.random.rand(nb_to_add, 2) * 3
-            for fid, pt in zip(fake_ids, new_pts):
-                self.pts[fid] = pt.tolist()
+        if nb == 0:
+            return
+
+        ids_bruites = np.random.choice(ids, nb, replace=False)
+
+        for pid in ids_bruites:
+
+            pt = np.array(self.pts[pid])
+
+            dx = np.random.uniform(-amplitude, amplitude)
+            dy = np.random.uniform(-amplitude, amplitude)
+
+            self.pts[pid] = (pt + np.array([dx, dy])).tolist()
 
     def getID(self, coords):
         """

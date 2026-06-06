@@ -36,7 +36,7 @@ def check_observ(obs_v, obs_sim):
     return rms
 
 def check_couple(mire,screen,xo,yo,lambda_):
-    """ Remarque : éventuellement cette fonction sera supprimée pour être intégrée directement dans la grosse boucle for
+    """ Remarque : éventuellement cette fonction est à supprimer pour être intégrée directement dans la grosse boucle for
     qui englobera tout le processus (on itère ce processus sur chaque couple de billes de la mire)"""
 
     # Distance des points "témoins" y0 et x0

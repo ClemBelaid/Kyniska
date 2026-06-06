@@ -46,10 +46,10 @@ def calcul_matrice_rotation(v, angle):
     return mR
 
 
-def calcul_matrice_translation(v):
+def calcul_matrice_translation(v): # Pas vraiment utilisé 
     return 0
 
-def calcul_matrice_pose(rmat, tmat):
+def calcul_matrice_pose(rmat, tmat): # non plus 
     """
     Entrée : Les matrices de rotation et de translation (sous forme de numpy array)
     Sortie : La matrice de pose reconstruite

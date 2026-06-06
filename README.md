@@ -1,8 +1,9 @@
 # Projet Kyniska
 
+
 ## Objectif
 
-Identifier et numéroter automatiquement les billes projetées en 2D à partir d’une mire 3D connue.
+Identifier et numéroter les billes projetées en 2D à partir d’une mire 3D connue.
 
 Le but final est de retrouver la correspondance entre :
 
@@ -11,20 +12,32 @@ Le but final est de retrouver la correspondance entre :
 
 ---
 
-## Structure actuelle du projet
+## Structure du projet
 
-### main.py
+Le projet comprend 3 dossiers principaux :
 
-Fichier de test / exécution rapide.
+-> "old" contenant tous les fichiers obsolètes qu'on n'a pas pu intégrer au code final soit par manque de temps(ex: triangulation.py ) soit par parceque ça ne menait nulle part(exemple : le matching_convex qui devait nous servir à réaliser la méthode de l'enveloppe convexe jugée finalement un peu trop complexe à mettre en oeuvre).
 
-### mire.py
+-> "src/core" : le noeud de tout ce projet où se trouvent tous les fichiers nécessaires à la génération, les calculs projectifs , géométriques(ex: perpendicular_vector dans geometry.py ) et également ceux permettant de faire fonctionner le véritable main du projet ( le compare.py ). 
 
-Contient actuellement :
+-> "tests" : dossier qui contient les tests de certains fichiers du src/core
+NB: Certains tests pourraient ne pas passer, ayant été réalisés au tout début du projet avec un code de leurs fichiers correspondants du src/core légèrement ou complètement différents du code actuel. Ils n'ont pas pu être mis à jour faute de temps. 
 
-* classe `Mire` : représentation d’une mire 3D
-* classe `Observation` : représentation d’une projection / liste de points 2D
+# Commandes à exécuter:
 
----
+python generer.py "forme de mire" "nombre de billes" : obtient un vrMire(.json) 
+python simulate.py "le mire.json de la vrai mire" "bruit on ou off (0 ou 1): obtient un Mir_rot(.json) et obs_ref(.json)
+Ex : python simulate.py vrMire 1 (le bruit gaussien est intégré à certains points de l'observation les points sont décalés plus ou moins de leurs positions d'origine). On peut aussi essayer de remplacer ajouter_bruit_gaussien par ajouter_bruit_position (ratio=0.2, amplitude=2.0) pour un bruit uniforme 
+python -m src.core.compare 
+
+# Résultats : **
+-> L'animation 
+-> L'angle obtenu 
+-> les meilleurs candidats xm et ym points de la mire 
+-> le score obtenu
+-> La différence entre la mire avec pose de base et la mire obtenu avec la pose "bricolée" par le compare 
+Remarque : Pour voir l'angle , score , etc ... dans le terminal , il faut fermer la fenetre de l'animation. Un bug surement lié à animation.py. 
+
 
 ## Structures de données
 
@@ -34,10 +47,11 @@ Objet 3D contenant :
 
 * positions des billes en 3D
 * ids fixes de chaque bille
+stockés dans un dico. 
 
 ### Observation
 
-Liste de points 2D obtenus après projection.
+points 2D avec leurs ID obtenus après projection(également dans un dico).
 
 ## Fichiers JSON
 
@@ -48,47 +62,12 @@ Dans notre cas, on y stocke :
 * pour une **mire** : la liste des billes avec leur `id` fixe et leurs coordonnées `x, y, z`
 * pour une **observation** : la liste des points projetés avec éventuellement leur `id`, et leurs coordonnées `u, v`
 
-Exemple : un program peut générer une projection bruitée, l’enregistrer en JSON, puis un autre peut la charger pour tester un algorithme d’identification.
 
 Introduction rapide au format JSON : https://developer.mozilla.org/fr/docs/Learn_web_development/Core/Scripting/JSON
 
 La librairie python : https://docs.python.org/3/library/json.html
 
----
 
-## Étapes
-
-* structure `Mire`
-* structure `Observation`
-* sauvegarde JSON
-* chargement JSON
-
-### Géométrie
-
-* projection sur plan
-* rotations 3D
-* génération de poses aléatoires
-
-### Génération de données
-
-* créer projections simulées
-* ajouter bruit
-* retirer ids pour créer cas réel
-
-### Identification
-
-* retrouver les ids à partir des points 2D
-* tester :
-
-  * bi-rapport
-  * enveloppe convexe
-  * voisinage / distances
-
-### Validation
-
-* comparer résultat avec vérité terrain
-* taux de réussite
-* robustesse au bruit
 
 ---
 
@@ -104,10 +83,13 @@ git checkout -b nom-branche
 
 Puis commit / push / Pull Request.
 
+
+
+
+
+
+
+
+
 ---
-
-## Remarque
-
-Le projet est encore en phase de structuration.
-L’objectif actuel est d’avoir une base claire (structure de code) avant d’attaquer les algorithmes principaux.
 
