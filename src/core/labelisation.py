@@ -18,3 +18,11 @@ def labeliser_points(points_projetes: np.ndarray, points_observes: list) -> dict
         labels[i] = index_plus_proche
         
     return labels
+
+
+def taux_labels_corrects(labels):
+    taux = 0
+    for x in labels.keys():
+        if labels[x] == x :
+            taux += 1
+    return taux/len(labels)
