@@ -37,7 +37,6 @@ if __name__ == "__main__":
         nom_Mire = sys.argv[1]
         vrMire = Mire.load_json(nom_Mire)
         bruit_on = int(sys.argv[2])
-        np.random.seed(42)
         a, b, c = np.random.uniform(
         -np.pi/6,
         np.pi/6,
