@@ -111,19 +111,18 @@ def scd_process(mire, screen, lst_xmr_fin, xm, ym, xo, yo):
     c = np.linalg.norm(ym_xm)
     a = np.sqrt(c**2 - b**2)
 
-    theta = np.arctan2(a, b)
-    axis = np.cross(vn, yo_xo)
-    mat_rot = calcul_matrice_rotation(axis, -theta)
-
     # Calcul de l'angle phi entre le vecteur ym_xm et l'écran
     ym_xm = ym - xm
-    sin_phi = ym_xm[2]
+    sin_phi = np.dot(ym_xm, vn)
     ym_xm[2] = 0
     cos_phi = np.linalg.norm(ym_xm)
     phi = np.arctan2(sin_phi, cos_phi)
 
-    angle_inv = -(2*phi + theta)
-    mat_rot_inv = calcul_matrice_rotation(vn, angle_inv)
+    angle = theta - phi
+    mat_rot = calcul_matrice_rotation(axis, -angle)
+
+    angle_inv = -(theta + phi)
+    mat_rot_inv = calcul_matrice_rotation(axis, -angle_inv)
 
     # -----------------------------------------
     # Rotation finale de toute la mire
